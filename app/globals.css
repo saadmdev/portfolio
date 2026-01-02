@@ -19,8 +19,170 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Responsive helpers: make media and canvas elements scale nicely */
+img,
+picture,
+svg,
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Make interactive controls more touch-friendly */
+button,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Base font adjustments for small screens */
+@media (max-width: 480px) {
+  html { font-size: 15px; }
+}
+@media (min-width: 1024px) {
+  html { font-size: 16px; }
+}
+
+/* Animated gradient text */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes text-glow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(58, 41, 255, 0.5),
+                 0 0 40px rgba(255, 148, 180, 0.3),
+                 0 0 60px rgba(255, 50, 50, 0.2);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(58, 41, 255, 0.8),
+                 0 0 60px rgba(255, 148, 180, 0.5),
+                 0 0 90px rgba(255, 50, 50, 0.3);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes color-rotate {
+  0% {
+    color: #3A29FF;
+    text-shadow: 0 0 10px rgba(58, 41, 255, 0.5);
+  }
+  33% {
+    color: #FF94B4;
+    text-shadow: 0 0 10px rgba(255, 148, 180, 0.5);
+  }
+  66% {
+    color: #FF3232;
+    text-shadow: 0 0 10px rgba(255, 50, 50, 0.5);
+  }
+  100% {
+    color: #3A29FF;
+    text-shadow: 0 0 10px rgba(58, 41, 255, 0.5);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+.animated-gradient-text {
+  background: linear-gradient(
+    90deg,
+    #3A29FF 0%,
+    #FF94B4 50%,
+    #FF3232 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.text-glow {
+  animation: text-glow 2s ease-in-out infinite;
+}
+
+.fade-in-up {
+  animation: fade-in-up 1s ease-out;
+}
+
+.slide-in-left {
+  animation: slide-in-left 1s ease-out;
+}
+
+.color-rotate {
+  animation: color-rotate 3s ease-in-out infinite;
 }
