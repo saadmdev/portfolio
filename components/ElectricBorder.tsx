@@ -1,6 +1,13 @@
 'use client';
 
-import React, { CSSProperties, PropsWithChildren, useEffect, useId, useLayoutEffect, useRef } from 'react';
+import React, { CSSProperties, PropsWithChildren, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+
+// Check if device is mobile/low-power
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
+};
 
 type ElectricBorderProps = PropsWithChildren<{
   color?: string;
@@ -27,7 +34,64 @@ function hexToRgba(hex: string, alpha = 1): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-const ElectricBorder: React.FC<ElectricBorderProps> = ({
+// Simplified mobile border - no SVG filter animations
+const MobileElectricBorder: React.FC<ElectricBorderProps> = ({
+  children,
+  color = '#5227FF',
+  thickness = 2,
+  className,
+  style
+}) => {
+  const inheritRadius: CSSProperties = {
+    borderRadius: style?.borderRadius ?? 'inherit'
+  };
+
+  const strokeStyle: CSSProperties = {
+    ...inheritRadius,
+    borderWidth: thickness,
+    borderStyle: 'solid',
+    borderColor: color,
+    boxShadow: `0 0 ${thickness * 4}px ${hexToRgba(color, 0.4)}, inset 0 0 ${thickness * 2}px ${hexToRgba(color, 0.1)}`
+  };
+
+  return (
+    <div className={'relative isolate ' + (className ?? '')} style={style}>
+      <div className="absolute inset-0 pointer-events-none" style={inheritRadius}>
+        <div className="absolute inset-0 box-border" style={strokeStyle} />
+      </div>
+      <div className="relative" style={inheritRadius}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const ElectricBorder: React.FC<ElectricBorderProps> = (props) => {
+  const {
+    children,
+    color = '#5227FF',
+    speed = 1,
+    chaos = 1,
+    thickness = 2,
+    className,
+    style
+  } = props;
+  
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
+
+  // Use simplified border on mobile
+  if (isMobile) {
+    return <MobileElectricBorder {...props} />;
+  }
+
+  return <DesktopElectricBorder {...props} />;
+};
+
+const DesktopElectricBorder: React.FC<ElectricBorderProps> = ({
   children,
   color = '#5227FF',
   speed = 1,
@@ -195,4 +259,3 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
 };
 
 export default ElectricBorder;
-

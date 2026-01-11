@@ -5,6 +5,13 @@ import { motion, PanInfo, useMotionValue } from 'framer-motion';
 import React, { JSX } from 'react';
 import { FaCode, FaMobileAlt, FaRobot, FaCloud, FaDatabase, FaLaptopCode } from 'react-icons/fa';
 
+// Check if device is mobile/low-power
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
+};
+
 export interface CarouselItem {
   title: string;
   description: string;
@@ -65,6 +72,8 @@ const DRAG_BUFFER = 0;
 const VELOCITY_THRESHOLD = 500;
 const GAP = 16;
 const SPRING_OPTIONS = { type: 'spring' as const, stiffness: 300, damping: 30 };
+// Simplified spring for mobile
+const MOBILE_SPRING_OPTIONS = { type: 'spring' as const, stiffness: 200, damping: 25 };
 
 interface CarouselItemProps {
   item: CarouselItem;
@@ -131,6 +140,15 @@ export default function Carousel({
 }: CarouselProps): JSX.Element {
   const containerPadding = 16;
   const [effectiveBaseWidth, setEffectiveBaseWidth] = useState<number>(baseWidth);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check for mobile on mount
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
+
+  // Use simpler spring on mobile
+  const springOptions = isMobile ? MOBILE_SPRING_OPTIONS : SPRING_OPTIONS;
 
   // Adapt carousel width to available container width so it remains responsive
   useEffect(() => {
@@ -198,7 +216,7 @@ export default function Carousel({
     }
   }, [itemsForRender.length, loop, position]);
 
-  const effectiveTransition = isJumping ? { duration: 0 } : SPRING_OPTIONS;
+  const effectiveTransition = isJumping ? { duration: 0 } : springOptions;
 
   const handleAnimationStart = () => {
     setIsAnimating(true);

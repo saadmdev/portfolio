@@ -1,4 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+// Check if device is mobile/low-power
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
+};
 
 interface FuzzyTextProps {
   children: React.ReactNode;
@@ -22,28 +29,75 @@ interface FuzzyTextProps {
   className?: string;
 }
 
-const FuzzyText: React.FC<FuzzyTextProps> = ({
-  children,
-  fontSize = 'clamp(2rem, 8vw, 8rem)',
-  fontWeight = 900,
-  fontFamily = 'inherit',
-  color = '#fff',
-  enableHover = true,
-  baseIntensity = 0.18,
-  hoverIntensity = 0.5,
-  fuzzRange = 30,
-  fps = 60,
-  direction = 'horizontal',
-  transitionDuration = 0,
-  clickEffect = false,
-  glitchMode = false,
-  glitchInterval = 2000,
-  glitchDuration = 200,
-  gradient = null,
-  letterSpacing = 0,
-  className = ''
-}) => {
+// Simple mobile fallback component
+const MobileFuzzyText: React.FC<{
+  children: React.ReactNode;
+  fontSize?: number | string;
+  fontWeight?: string | number;
+  fontFamily?: string;
+  color?: string;
+  className?: string;
+}> = ({ children, fontSize, fontWeight, fontFamily, color, className }) => {
+  return (
+    <span
+      className={className}
+      style={{
+        fontSize: typeof fontSize === 'number' ? `${fontSize}px` : fontSize,
+        fontWeight: fontWeight as any,
+        fontFamily,
+        color,
+        display: 'inline-block'
+      }}
+    >
+      {children}
+    </span>
+  );
+};
+
+const FuzzyText: React.FC<FuzzyTextProps> = (props) => {
+  const {
+    children,
+    fontSize = 'clamp(2rem, 8vw, 8rem)',
+    fontWeight = 900,
+    fontFamily = 'inherit',
+    color = '#fff',
+    enableHover = true,
+    baseIntensity = 0.18,
+    hoverIntensity = 0.5,
+    fuzzRange = 30,
+    fps = 60,
+    direction = 'horizontal',
+    transitionDuration = 0,
+    clickEffect = false,
+    glitchMode = false,
+    glitchInterval = 2000,
+    glitchDuration = 200,
+    gradient = null,
+    letterSpacing = 0,
+    className = ''
+  } = props;
+  
+  const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement & { cleanupFuzzyText?: () => void }>(null);
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
+
+  // Return simple text on mobile
+  if (isMobile) {
+    return (
+      <MobileFuzzyText
+        fontSize={fontSize}
+        fontWeight={fontWeight}
+        fontFamily={fontFamily}
+        color={color}
+        className={className}
+      >
+        {children}
+      </MobileFuzzyText>
+    );
+  }
 
   useEffect(() => {
     let animationFrameId: number;

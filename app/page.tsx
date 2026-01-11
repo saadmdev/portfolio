@@ -61,15 +61,35 @@ interface Project {
   liveUrl?: string;
 }
 
-// Tilted Project Card Component
+// Check if device is mobile/low-power
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
+};
+
+// Tilted Project Card Component - optimized for mobile
 const TiltedProjectCard = ({ project, onClick }: { project: Project; onClick: () => void }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const rotateX = useSpring(0, { damping: 30, stiffness: 100, mass: 2 });
-  const rotateY = useSpring(0, { damping: 30, stiffness: 100, mass: 2 });
-  const scale = useSpring(1, { damping: 30, stiffness: 100, mass: 2 });
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Simplified spring config for better performance
+  const springConfig = isMobile 
+    ? { damping: 25, stiffness: 150, mass: 1 } 
+    : { damping: 30, stiffness: 100, mass: 2 };
+  
+  const rotateX = useSpring(0, springConfig);
+  const rotateY = useSpring(0, springConfig);
+  const scale = useSpring(1, springConfig);
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    // Skip tilt effect on mobile
+    if (isMobile || !cardRef.current) return;
+    
     const rect = cardRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
@@ -82,6 +102,7 @@ const TiltedProjectCard = ({ project, onClick }: { project: Project; onClick: ()
   };
 
   const handleMouseLeave = () => {
+    if (isMobile) return;
     rotateX.set(0);
     rotateY.set(0);
     scale.set(1);
@@ -90,14 +111,14 @@ const TiltedProjectCard = ({ project, onClick }: { project: Project; onClick: ()
   return (
     <motion.div
       ref={cardRef}
-      className="relative group cursor-pointer h-[260px] md:h-[320px] lg:h-[360px] [perspective:1000px]"
+      className={`relative group cursor-pointer h-[260px] md:h-[320px] lg:h-[360px] ${isMobile ? '' : '[perspective:1000px]'}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
     >
       <motion.div
         className="relative w-full h-full rounded-[15px] overflow-hidden"
-        style={{
+        style={isMobile ? {} : {
           rotateX,
           rotateY,
           scale,
@@ -129,6 +150,17 @@ export default function Home() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isMobileMain, setIsMobileMain] = useState(false);
+
+  // Check for mobile on mount
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileMain(isMobileDevice());
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Text looping for ASCIIText
   const contactTexts = ['GET_IN_TOUCH', 'LET_S_TALK', 'CONNECT', 'HELLO_WORLD', 'CONTACT_ME'];
@@ -323,21 +355,28 @@ export default function Home() {
                 />
               </div>
 
-              {/* Subtitle */}
+              {/* Subtitle - Use simple text on mobile */}
               <div className="space-y-4">
-                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light">
-                  <TextPressure
-                    text="Software Engineer Full Stack | AI"
-                    textColor="#FFFFFF"
-                    strokeColor="#3A29FF"
-                    stroke={true}
-                    strokeWidth={2}
-                    minFontSize={24}
-                    width={true}
-                    weight={true}
-                    italic={false}
-                    className="text-white/90 font-light"
-                  />
+                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light h-[60px] sm:h-[70px] md:h-[90px]">
+                  <div className="block md:hidden">
+                    <h2 className="text-white/90 font-light text-xl sm:text-2xl">
+                      Software Engineer Full Stack | AI
+                    </h2>
+                  </div>
+                  <div className="hidden md:block h-full">
+                    <TextPressure
+                      text="Software Engineer Full Stack | AI"
+                      textColor="#FFFFFF"
+                      strokeColor="#3A29FF"
+                      stroke={true}
+                      strokeWidth={2}
+                      minFontSize={24}
+                      width={true}
+                      weight={true}
+                      italic={false}
+                      className="text-white/90 font-light"
+                    />
+                  </div>
                 </div>
 
                 {/* Rotating Tagline */}
@@ -1187,30 +1226,56 @@ export default function Home() {
                 </ElectricBorder>
               </div>
 
-              {/* Right Column - Animated Visualization */}
-              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#060010] to-[#1a0a2e] border border-white/20 shadow-xl min-h-[600px]">
-                <div className="absolute inset-0 w-full h-full">
-                  <Dither
-                    waveColor={[0.5, 0.5, 0.5]}
-                    disableAnimation={false}
-                    enableMouseInteraction={true}
-                    mouseRadius={0.3}
-                    colorNum={4}
-                    waveAmplitude={0.3}
-                    waveFrequency={3}
-                    waveSpeed={0.05}
-                  />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center z-10">
-                  <ASCIIText
-                    text={contactTexts[currentTextIndex]}
-                    enableWaves={true}
-                    asciiFontSize={6}
-                    textFontSize={60}
-                    textColor="#fdf9f3"
-                    planeBaseHeight={4}
-                  />
-                </div>
+              {/* Right Column - Animated Visualization (Desktop) / Static Visual (Mobile) */}
+              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#060010] to-[#1a0a2e] border border-white/20 shadow-xl min-h-[400px] md:min-h-[600px]">
+                {isMobileMain ? (
+                  // Mobile: Simple animated gradient background with text
+                  <div className="absolute inset-0 w-full h-full flex items-center justify-center">
+                    <div 
+                      className="absolute inset-0"
+                      style={{
+                        background: `
+                          radial-gradient(ellipse at 30% 30%, rgba(58, 41, 255, 0.3) 0%, transparent 50%),
+                          radial-gradient(ellipse at 70% 70%, rgba(255, 148, 180, 0.2) 0%, transparent 50%),
+                          radial-gradient(ellipse at 50% 50%, rgba(255, 50, 50, 0.15) 0%, transparent 60%),
+                          linear-gradient(135deg, #060010 0%, #1a0a2e 50%, #060010 100%)
+                        `
+                      }}
+                    />
+                    <div className="relative z-10 text-center px-4">
+                      <h3 className="text-3xl sm:text-4xl font-black text-white mb-4 tracking-tight">
+                        <span className="animated-gradient-text">{contactTexts[currentTextIndex].replace(/_/g, ' ')}</span>
+                      </h3>
+                      <p className="text-white/60 text-sm">Let's build something amazing together</p>
+                    </div>
+                  </div>
+                ) : (
+                  // Desktop: Full 3D visualization
+                  <>
+                    <div className="absolute inset-0 w-full h-full">
+                      <Dither
+                        waveColor={[0.5, 0.5, 0.5]}
+                        disableAnimation={false}
+                        enableMouseInteraction={true}
+                        mouseRadius={0.3}
+                        colorNum={4}
+                        waveAmplitude={0.3}
+                        waveFrequency={3}
+                        waveSpeed={0.05}
+                      />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center z-10">
+                      <ASCIIText
+                        text={contactTexts[currentTextIndex]}
+                        enableWaves={true}
+                        asciiFontSize={6}
+                        textFontSize={60}
+                        textColor="#fdf9f3"
+                        planeBaseHeight={4}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

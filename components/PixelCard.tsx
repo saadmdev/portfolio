@@ -1,7 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { JSX } from 'react';
+
+// Check if device is mobile/low-power
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
+};
 
 class Pixel {
   width: number;
@@ -209,11 +216,17 @@ export default function PixelCard({
   const pixelsRef = useRef<Pixel[]>([]);
   const animationRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
   const timePreviousRef = useRef(typeof window !== 'undefined' ? performance.now() : 0);
+  const [isMobile, setIsMobile] = useState(false);
   const reducedMotion = useRef(
     typeof window !== 'undefined' && window.matchMedia
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
       : false
   ).current;
+
+  // Check for mobile
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
 
   const variantCfg: VariantConfig = VARIANTS[variant] || VARIANTS.default;
   const finalGap = gap ?? variantCfg.gap;
@@ -221,8 +234,9 @@ export default function PixelCard({
   const finalColors = colors ?? variantCfg.colors;
   const finalNoFocus = noFocus ?? variantCfg.noFocus;
 
+  // Skip canvas animations on mobile for better performance
   const initPixels = () => {
-    if (!containerRef.current || !canvasRef.current) return;
+    if (isMobile || !containerRef.current || !canvasRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const width = Math.floor(rect.width);
@@ -305,6 +319,9 @@ export default function PixelCard({
   };
 
   useEffect(() => {
+    // Skip pixel initialization on mobile
+    if (isMobile) return;
+    
     initPixels();
 
     const observer = new ResizeObserver(() => {
@@ -322,7 +339,7 @@ export default function PixelCard({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finalGap, finalSpeed, finalColors, finalNoFocus]);
+  }, [finalGap, finalSpeed, finalColors, finalNoFocus, isMobile]);
 
   return (
     <div

@@ -186,3 +186,68 @@ select {
 .color-rotate {
   animation: color-rotate 3s ease-in-out infinite;
 }
+
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+  /* Reduce animations on mobile for better performance */
+  .animated-gradient-text {
+    animation: none;
+    background: linear-gradient(90deg, #3A29FF 0%, #FF94B4 50%, #FF3232 100%);
+    background-size: 100% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-glow {
+    animation: none;
+    text-shadow: 0 0 20px rgba(58, 41, 255, 0.5);
+  }
+
+  .color-rotate {
+    animation: none;
+    color: #3A29FF;
+    text-shadow: 0 0 10px rgba(58, 41, 255, 0.5);
+  }
+
+  .float-animation {
+    animation: none;
+  }
+
+  .shimmer-text {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: white;
+  }
+
+  /* Reduce fade-in animation duration */
+  .fade-in-up {
+    animation: fade-in-up 0.5s ease-out;
+  }
+
+  .slide-in-left {
+    animation: slide-in-left 0.5s ease-out;
+  }
+
+  /* Force hardware acceleration for smooth scrolling */
+  * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  /* Optimize will-change for mobile */
+  .will-change-transform {
+    will-change: auto;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

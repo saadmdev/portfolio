@@ -4,6 +4,13 @@
 
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 
+// Check if device is mobile/low-power
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
+};
+
 interface TextPressureProps {
   text?: string;
   fontFamily?: string;
@@ -43,7 +50,137 @@ const debounce = (func: (...args: any[]) => void, delay: number) => {
   };
 };
 
+// Simple static text component for mobile
+const MobileTextPressure: React.FC<{
+  text: string;
+  textColor: string;
+  strokeColor: string;
+  stroke: boolean;
+  strokeWidth: number;
+  minFontSize: number;
+  className: string;
+  flex: boolean;
+}> = ({ text, textColor, strokeColor, stroke, strokeWidth, minFontSize, className, flex }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [fontSize, setFontSize] = useState(minFontSize);
+  const chars = text.split('');
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (!containerRef.current) return;
+      const { width: containerW } = containerRef.current.getBoundingClientRect();
+      let newFontSize = containerW / (chars.length / 2);
+      newFontSize = Math.max(newFontSize, minFontSize);
+      setFontSize(newFontSize);
+    };
+
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, [chars.length, minFontSize]);
+
+  return (
+    <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-transparent">
+      <style>{`
+        .mobile-stroke span {
+          position: relative;
+          color: ${textColor};
+        }
+        .mobile-stroke span::after {
+          content: attr(data-char);
+          position: absolute;
+          left: 0;
+          top: 0;
+          color: transparent;
+          z-index: -1;
+          -webkit-text-stroke-width: ${strokeWidth}px;
+          -webkit-text-stroke-color: ${strokeColor};
+        }
+      `}</style>
+      <h1
+        className={`${className} ${flex ? 'flex justify-between' : ''} ${stroke ? 'mobile-stroke' : ''} uppercase text-center`}
+        style={{
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontSize: fontSize,
+          lineHeight: 1,
+          margin: 0,
+          fontWeight: 900,
+          color: stroke ? undefined : textColor,
+          letterSpacing: '-0.02em'
+        }}
+      >
+        {chars.map((char, i) => (
+          <span key={i} data-char={char} className="inline-block">
+            {char}
+          </span>
+        ))}
+      </h1>
+    </div>
+  );
+};
+
 const TextPressure: React.FC<TextPressureProps> = ({
+  text = 'Compressa',
+  fontFamily = 'Compressa VF',
+  fontUrl = 'https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2',
+  width = true,
+  weight = true,
+  italic = true,
+  alpha = false,
+  flex = true,
+  stroke = false,
+  scale = false,
+  textColor = '#FFFFFF',
+  strokeColor = '#3A29FF',
+  strokeWidth = 2,
+  className = '',
+  minFontSize = 24
+}) => {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
+
+  // Render simple static text on mobile
+  if (isMobile) {
+    return (
+      <MobileTextPressure
+        text={text}
+        textColor={textColor}
+        strokeColor={strokeColor}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        minFontSize={minFontSize}
+        className={className}
+        flex={flex}
+      />
+    );
+  }
+
+  return (
+    <DesktopTextPressure
+      text={text}
+      fontFamily={fontFamily}
+      fontUrl={fontUrl}
+      width={width}
+      weight={weight}
+      italic={italic}
+      alpha={alpha}
+      flex={flex}
+      stroke={stroke}
+      scale={scale}
+      textColor={textColor}
+      strokeColor={strokeColor}
+      strokeWidth={strokeWidth}
+      className={className}
+      minFontSize={minFontSize}
+    />
+  );
+};
+
+// Desktop version with full interactivity
+const DesktopTextPressure: React.FC<TextPressureProps> = ({
   text = 'Compressa',
   fontFamily = 'Compressa VF',
   fontUrl = 'https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2',
@@ -239,4 +376,3 @@ const TextPressure: React.FC<TextPressureProps> = ({
 };
 
 export default TextPressure;
-

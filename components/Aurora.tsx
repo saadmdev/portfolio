@@ -1,7 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
+
+// Check if device is mobile/low-power
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768;
+};
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -106,6 +113,27 @@ void main() {
 }
 `;
 
+// Simplified static gradient for mobile - no WebGL
+const MobileAurora = ({ colorStops }: { colorStops: string[] }) => {
+  return (
+    <div 
+      className="w-full h-full fixed inset-0 -z-10"
+      style={{
+        background: `linear-gradient(135deg, ${colorStops[0]}20 0%, ${colorStops[1]}15 50%, ${colorStops[2]}20 100%)`,
+      }}
+    >
+      <div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          background: `radial-gradient(ellipse at 20% 20%, ${colorStops[0]}30 0%, transparent 50%),
+                       radial-gradient(ellipse at 80% 80%, ${colorStops[2]}25 0%, transparent 50%),
+                       radial-gradient(ellipse at 50% 50%, ${colorStops[1]}20 0%, transparent 60%)`
+        }}
+      />
+    </div>
+  );
+};
+
 interface AuroraProps {
   colorStops?: string[];
   amplitude?: number;
@@ -120,8 +148,24 @@ export default function Aurora(props: AuroraProps) {
   propsRef.current = props;
 
   const ctnDom = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check for mobile on mount
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+    
+    const handleResize = () => {
+      setIsMobile(isMobileDevice());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
+    // Skip WebGL for mobile devices
+    if (isMobile) return;
+    
     const ctn = ctnDom.current;
     if (!ctn) return;
 
@@ -205,7 +249,12 @@ export default function Aurora(props: AuroraProps) {
       }
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [amplitude]);
+  }, [amplitude, isMobile]);
+
+  // Render mobile-friendly gradient for mobile devices
+  if (isMobile) {
+    return <MobileAurora colorStops={colorStops} />;
+  }
 
   return <div ref={ctnDom} className="w-full h-full fixed inset-0 -z-10" />;
 }
