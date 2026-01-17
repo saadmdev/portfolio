@@ -12,6 +12,10 @@ import PixelCard from "@/components/PixelCard";
 import MagicBento from "@/components/MagicBento";
 import LogoLoop from "@/components/LogoLoop";
 import TiltedCard from "@/components/TiltedCard";
+import Globe from "@/components/Globe";
+import { Frameworks } from "@/components/OrbitingCircles";
+import DraggableCard from "@/components/DraggableCard";
+import CopyEmailButton from "@/components/CopyEmailButton";
 import { FaCode, FaMobileAlt, FaRobot, FaCloud, FaGraduationCap, FaSchool, FaUniversity, FaGithub, FaExternalLinkAlt, FaTimes, FaLinkedin } from 'react-icons/fa';
 import { FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import { 
@@ -42,7 +46,6 @@ import x1Image from '@/assets/x1.jpg';
 import Dither from '@/components/Dither';
 import ASCIIText from '@/components/ASCIIText';
 import TextPressure from '@/components/TextPressure';
-import Carousel from '@/components/Carousel';
 import RotatingText from '@/components/RotatingText';
 import FuzzyText from '@/components/FuzzyText';
 import ocean from '@/assets/ocean.png';
@@ -50,6 +53,7 @@ import university from '@/assets/university.jpg';
 import pathfinder from '@/assets/pathfinder.jpg';
 import ecommerce from '@/assets/ecommerce.png';
 import carrental from '@/assets/CarRental.png';
+import everest from '@/assets/Everest.png';
 
 interface Project {
   id: number;
@@ -147,10 +151,12 @@ const TiltedProjectCard = ({ project, onClick }: { project: Project; onClick: ()
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isMobileMain, setIsMobileMain] = useState(false);
+  const grid2ContainerRef = useRef<HTMLDivElement>(null);
 
   // Check for mobile on mount
   useEffect(() => {
@@ -260,6 +266,15 @@ export default function Home() {
     },
     {
       id: 5,
+      title: "Mount Everest",
+      image: typeof everest === 'string' ? everest : everest.src,
+      description: "A modern, interactive web experience showcasing Mount Everest through stunning visuals, historical facts, and engaging animations. Features parallax scrolling effects, smooth animations powered by Framer Motion, responsive design, historical timeline of expeditions, and comprehensive facts about the world's highest peak.",
+      tools: ["React", "Vite", "Tailwind CSS", "Framer Motion", "Lenis", "Lucide React"],
+      githubUrl: "https://github.com/saadmdev/discover-everest",
+      liveUrl: "https://discover-everest.vercel.app"
+    },
+    {
+      id: 6,
       title: "Pathfinding Visualizer",
       image: typeof pathfinder === 'string' ? pathfinder : pathfinder.src,
       description: "A pathfinding visualizer that allows you to visualize the pathfinding algorithms like Dijkstra's, A*, Depth-First Search (DFS) ,and Breadth-First Search .",
@@ -267,15 +282,6 @@ export default function Home() {
       githubUrl: "https://github.com/saadmdev/Pathfinding-Visualizer",
       liveUrl: "https://saadmdev.github.io/Pathfinding-Visualizer/"
     },
-    {
-      id: 6,
-      title: "University_Website",
-      image: typeof university === 'string' ? university : university.src,
-      description: "A website for a university that allows you to view the university's courses, programs, and events.",
-      tools: ["Html", "Css", "JavaScript", "Php", "Static Assets"],
-      githubUrl: "https://github.com/saadmdev/University_Website",
-      liveUrl: "https://saadmdev.github.io/University_Website/"
-    }
   ];
 
   const navItems = [
@@ -323,7 +329,7 @@ export default function Home() {
       
       {/* Navigation */}
       <CardNav
-        logo="/logo.svg"
+        logo="/logo-white.svg"
         logoAlt="Muhammad Saad Logo"
         items={navItems}
         baseColor="rgba(255, 255, 255, 0.1)"
@@ -338,72 +344,111 @@ export default function Home() {
         <div className="w-full max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Column - Text Content */}
-            <div className="flex flex-col justify-center space-y-6 md:space-y-8 fade-in-up text-center lg:text-left">
-              {/* Main Name with TextPressure */}
-              <div className="relative h-[120px] sm:h-[140px] md:h-[180px] min-h-[80px]">
-                <TextPressure
-                  text="MUHAMMAD SAAD"
-                  textColor="#FFFFFF"
-                  strokeColor="#3A29FF"
-                  stroke={true}
-                  strokeWidth={3}
-                  minFontSize={nameMinFont}
-                  width={true}
-                  weight={true}
-                  italic={true}
-                  className="text-white font-black"
-                />
+            <div className="flex flex-col justify-center space-y-4 md:space-y-6 fade-in-up text-center lg:text-left">
+              {/* Desktop View */}
+              <div className="hidden md:flex flex-col space-y-2">
+                <motion.h1
+                  className="text-3xl lg:text-4xl font-medium text-white"
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Hi I'm Muhammad Saad
+                </motion.h1>
+                <div className="flex flex-col items-start lg:items-start">
+                  <motion.p
+                    className="text-4xl lg:text-5xl font-medium text-white/80"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    A Developer <br /> Dedicated to Crafting
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 }}
+                  >
+                    <RotatingText
+                      texts={['Modern', 'Scalable', 'Secure']}
+                      delay={3000}
+                      className="text-7xl lg:text-9xl font-black bg-gradient-to-r from-[#3A29FF] via-[#FF94B4] to-[#FF3232] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,41,255,0.5)]"
+                    />
+                  </motion.div>
+                  <motion.p
+                    className="text-3xl lg:text-4xl font-medium text-white/80"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.9 }}
+                  >
+                    Web Solutions
+                  </motion.p>
+                </div>
               </div>
 
-              {/* Subtitle - Use simple text on mobile */}
-              <div className="space-y-4">
-                <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light h-[60px] sm:h-[70px] md:h-[90px]">
-                  <div className="block md:hidden">
-                    <h2 className="text-white/90 font-light text-xl sm:text-2xl">
-                      Software Engineer Full Stack | AI
-                    </h2>
-                  </div>
-                  <div className="hidden md:block h-full">
-                    <TextPressure
-                      text="Software Engineer Full Stack | AI"
-                      textColor="#FFFFFF"
-                      strokeColor="#3A29FF"
-                      stroke={true}
-                      strokeWidth={2}
-                      minFontSize={24}
-                      width={true}
-                      weight={true}
-                      italic={false}
-                      className="text-white/90 font-light"
+              {/* Mobile View */}
+              <div className="flex flex-col space-y-6 md:hidden px-2">
+                <motion.p
+                  className="text-4xl sm:text-5xl font-bold text-white leading-tight"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Hi, I'm Muhammad Saad
+                </motion.p>
+                <div className="space-y-2">
+                  <motion.p
+                    className="text-2xl sm:text-3xl font-medium text-white/70"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    A Developer Crafting
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                  >
+                    <RotatingText
+                      texts={['Modern', 'Scalable', 'Secure']}
+                      delay={3000}
+                      className="text-6xl sm:text-7xl font-black bg-gradient-to-r from-[#3A29FF] via-[#FF94B4] to-[#FF3232] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,41,255,0.5)]"
                     />
-                  </div>
+                  </motion.div>
+                  <motion.p
+                    className="text-2xl sm:text-3xl font-medium text-white/70"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9 }}
+                  >
+                    Web Solutions
+                  </motion.p>
                 </div>
-
-                {/* Rotating Tagline */}
-                <div className="relative w-full mx-auto lg:mx-0 max-w-[700px]">
-                  <RotatingText
-                    texts={[
-                      'Building Scalable Solutions',
-                      'Transforming Ideas Into Reality',
-                      'Innovation Through Code'
-                    ]}
-                    delay={3500}
-                  />
-                </div>
+                {/* CTA Button for Mobile */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.1 }}
+                  className="pt-4"
+                >
+                  <a
+                    href="#contact"
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[#3A29FF] to-[#FF94B4] text-white font-semibold text-lg shadow-lg shadow-[#3A29FF]/30 hover:shadow-[#3A29FF]/50 transition-all duration-300"
+                  >
+                    Let's Work Together
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </a>
+                </motion.div>
               </div>
             </div>
 
-            {/* Right Column - Carousel */}
-            <div className="flex items-center justify-center lg:justify-end fade-in-up" style={{ animationDelay: '0.3s' }}>
+            {/* Right Column - Globe (hidden on mobile) */}
+            <div className="hidden md:flex items-center justify-center lg:justify-end fade-in-up" style={{ animationDelay: '0.3s' }}>
               <div className="w-full flex justify-center">
-                <Carousel
-                  baseWidth={550}
-                  autoplay={true}
-                  autoplayDelay={2000}
-                  pauseOnHover={true}
-                  loop={true}
-                  round={true}
-                />
+                <Globe size={600} />
               </div>
             </div>
           </div>
@@ -411,118 +456,163 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="relative z-[1] w-full py-20 md:py-32 px-4 sm:px-8 md:px-16">
+      <section id="about" className="relative z-[1] w-full py-16 md:py-24 px-4 sm:px-8 md:px-16">
         <div className="w-full max-w-7xl mx-auto">
-          {/* Introduction */}
-          <div className="mb-16 md:mb-24 text-center fade-in-up">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
-              <span className="animated-gradient-text">Introduction</span>
+          {/* Section Header */}
+          <div className="mb-10 md:mb-14 fade-in-up text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 tracking-tight">
+              <span className="animated-gradient-text">About Me</span>
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto mb-8"></div>
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white/90 mb-6">
-              Overview
-            </h3>
-            <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed">
-              I'm a passionate <span className="animated-gradient-text font-semibold">Software Engineering</span> student specializing in modern web applications and AI solutions. With expertise in the <span className="color-rotate font-semibold">MERN stack</span> and <span className="color-rotate font-semibold">Python</span>, I create user-friendly interfaces and robust backend systems. I thrive on transforming complex problems into elegant solutions and am always eager to collaborate on impactful projects. Let's build something amazing together!
-            </p>
+            <div className="w-20 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto"></div>
           </div>
 
-          {/* Skills Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {/* Web Developer Card */}
-            <div className="group">
-              <ElectricBorder
-                color="#3A29FF"
-                speed={1}
-                chaos={0.5}
-                thickness={2}
-                style={{ borderRadius: 16 }}
-                className="h-full transition-transform duration-300 group-hover:scale-105"
-              >
-                <div className="p-6 md:p-8 h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[#3A29FF]/15 via-[#3A29FF]/5 to-transparent backdrop-blur-md min-h-[220px] md:min-h-[260px] rounded-2xl border border-white/10 transition-all duration-300 group-hover:border-white/20">
-                  <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
-                    <FaCode className="text-5xl md:text-6xl text-[#3A29FF] drop-shadow-[0_0_15px_rgba(58,41,255,0.6)]" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-white mb-3 tracking-tight">
-                    Web Developer
-                  </h3>
-                  <p className="text-white/70 text-sm md:text-base leading-relaxed">
-                    Building modern, responsive web applications with cutting-edge technologies
-                  </p>
-                </div>
-              </ElectricBorder>
+          {/* Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 md:auto-rows-[18rem] fade-in-up">
+            {/* Grid 1 - Main Intro */}
+            <div className="relative overflow-hidden p-6 bg-[#060010] rounded-2xl row-span-1 md:row-span-2 md:col-span-3 h-[20rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#3A29FF]/50 shadow-lg hover:shadow-[#3A29FF]/20 transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#3A29FF]/10 via-transparent to-[#FF94B4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <img
+                src="/coding-pov.png"
+                alt="Coding POV"
+                className="absolute scale-[1.75] -right-[5rem] -top-[1rem] md:scale-[3] md:left-50 md:inset-y-10 lg:scale-[2.5] opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+              />
+              <div className="relative z-10 h-full flex flex-col justify-end">
+                <p className="text-xl md:text-2xl font-semibold text-white mb-2">Hi, I'm Muhammad Saad</p>
+                <p className="text-white/70 text-sm md:text-base leading-relaxed">
+                  Over the last 4 years, I developed my frontend and backend dev
+                  skills to deliver dynamic software and web applications.
+                </p>
+              </div>
+              <div className="absolute inset-x-0 pointer-events-none -bottom-4 h-1/2 sm:h-1/3 bg-gradient-to-t from-[#060010]" />
             </div>
 
-            {/* React Native Developer Card */}
-            <div className="group">
-              <ElectricBorder
-                color="#FF94B4"
-                speed={1}
-                chaos={0.5}
-                thickness={2}
-                style={{ borderRadius: 16 }}
-                className="h-full transition-transform duration-300 group-hover:scale-105"
+            {/* Grid 2 - Code is Craft (Interactive) */}
+            <div className="relative overflow-hidden bg-[#060010] rounded-2xl row-span-1 md:col-span-3 h-[18rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#FF94B4]/50 shadow-lg hover:shadow-[#FF94B4]/20 transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FF94B4]/5 via-transparent to-[#3A29FF]/5"></div>
+              <div 
+                ref={grid2ContainerRef}
+                className="flex items-center justify-center w-full h-full relative"
               >
-                <div className="p-6 md:p-8 h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[#FF94B4]/15 via-[#FF94B4]/5 to-transparent backdrop-blur-md min-h-[220px] md:min-h-[260px] rounded-2xl border border-white/10 transition-all duration-300 group-hover:border-white/20">
-                  <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
-                    <FaMobileAlt className="text-5xl md:text-6xl text-[#FF94B4] drop-shadow-[0_0_15px_rgba(255,148,180,0.6)]" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-white mb-3 tracking-tight">
-                    React Native Developer
-                  </h3>
-                  <p className="text-white/70 text-sm md:text-base leading-relaxed">
-                    Creating cross-platform mobile experiences with React Native
-                  </p>
-                </div>
-              </ElectricBorder>
+                <p className="text-4xl md:text-6xl text-white/20 font-black select-none group-hover:text-white/30 transition-colors duration-300 tracking-wider">CODE IS CRAFT</p>
+                {/* 4 Text Pills - Core Web Dev */}
+                <DraggableCard
+                  style={{ rotate: "-50deg", top: "18%", left: "5%" }}
+                  text="TypeScript"
+                  containerRef={grid2ContainerRef}
+                />
+                <DraggableCard
+                  style={{ rotate: "50deg", top: "15%", left: "70%" }}
+                  text="Next.js"
+                  containerRef={grid2ContainerRef}
+                />
+                <DraggableCard
+                  style={{ rotate: "-40deg", bottom: "15%", left: "55%" }}
+                  text="Tailwind"
+                  containerRef={grid2ContainerRef}
+                />
+                <DraggableCard
+                  style={{ rotate: "60deg", bottom: "20%", left: "5%" }}
+                  text="Node.js"
+                  containerRef={grid2ContainerRef}
+                />
+                {/* 4 Icon Balls - Core Web Dev */}
+                <motion.div
+                  className="absolute z-10 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full ring-1 ring-white/10 bg-gradient-to-br from-[#1a1a2e] to-[#16213e] cursor-grab shadow-lg shadow-black/30"
+                  style={{ top: "40%", left: "45%" }}
+                  whileHover={{ scale: 1.1 }}
+                  drag
+                  dragConstraints={grid2ContainerRef}
+                  dragElastic={0.5}
+                >
+                  <SiReact className="text-[#61DAFB] text-3xl md:text-4xl" />
+                </motion.div>
+                <motion.div
+                  className="absolute z-10 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full ring-1 ring-white/10 bg-gradient-to-br from-[#1a1a2e] to-[#16213e] cursor-grab shadow-lg shadow-black/30"
+                  style={{ top: "55%", left: "20%" }}
+                  whileHover={{ scale: 1.1 }}
+                  drag
+                  dragConstraints={grid2ContainerRef}
+                  dragElastic={0.5}
+                >
+                  <SiTypescript className="text-[#3178C6] text-3xl md:text-4xl" />
+                </motion.div>
+                <motion.div
+                  className="absolute z-10 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full ring-1 ring-white/10 bg-gradient-to-br from-[#1a1a2e] to-[#16213e] cursor-grab shadow-lg shadow-black/30"
+                  style={{ top: "10%", left: "45%" }}
+                  whileHover={{ scale: 1.1 }}
+                  drag
+                  dragConstraints={grid2ContainerRef}
+                  dragElastic={0.5}
+                >
+                  <SiNextdotjs className="text-white text-3xl md:text-4xl" />
+                </motion.div>
+                <motion.div
+                  className="absolute z-10 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full ring-1 ring-white/10 bg-gradient-to-br from-[#1a1a2e] to-[#16213e] cursor-grab shadow-lg shadow-black/30"
+                  style={{ top: "50%", left: "75%" }}
+                  whileHover={{ scale: 1.1 }}
+                  drag
+                  dragConstraints={grid2ContainerRef}
+                  dragElastic={0.5}
+                >
+                  <SiNodedotjs className="text-[#339933] text-3xl md:text-4xl" />
+                </motion.div>
+                <motion.div
+                  className="absolute z-10 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-full ring-1 ring-white/10 bg-gradient-to-br from-[#1a1a2e] to-[#16213e] cursor-grab shadow-lg shadow-black/30"
+                  style={{ top: "70%", left: "42%" }}
+                  whileHover={{ scale: 1.1 }}
+                  drag
+                  dragConstraints={grid2ContainerRef}
+                  dragElastic={0.5}
+                >
+                  <SiMongodb className="text-[#47A248] text-3xl md:text-4xl" />
+                </motion.div>
+                {/* Extra Text Pill */}
+                <DraggableCard
+                  style={{ rotate: "-30deg", top: "38%", left: "15%" }}
+                  text="MongoDB"
+                  containerRef={grid2ContainerRef}
+                />
+              </div>
             </div>
 
-            {/* AI/ML Developer Card */}
-            <div className="group">
-              <ElectricBorder
-                color="#FF3232"
-                speed={1}
-                chaos={0.5}
-                thickness={2}
-                style={{ borderRadius: 16 }}
-                className="h-full transition-transform duration-300 group-hover:scale-105"
-              >
-                <div className="p-6 md:p-8 h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[#FF3232]/15 via-[#FF3232]/5 to-transparent backdrop-blur-md min-h-[220px] md:min-h-[260px] rounded-2xl border border-white/10 transition-all duration-300 group-hover:border-white/20">
-                  <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
-                    <FaRobot className="text-5xl md:text-6xl text-[#FF3232] drop-shadow-[0_0_15px_rgba(255,50,50,0.6)]" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-white mb-3 tracking-tight">
-                    AI/ML Developer
-                  </h3>
-                  <p className="text-white/70 text-sm md:text-base leading-relaxed">
-                    Crafting intelligent solutions with AI and machine learning
-                  </p>
-                </div>
-              </ElectricBorder>
+            {/* Grid 3 - Location/Timezone with Globe */}
+            <div className="relative overflow-hidden p-6 bg-[#060010] rounded-2xl row-span-1 md:col-span-3 h-[20rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#3A29FF]/50 shadow-lg hover:shadow-[#3A29FF]/20 transition-all">
+              <div className="absolute inset-0 bg-gradient-to-tl from-[#3A29FF]/10 via-transparent to-[#FF3232]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10 w-[50%]">
+                <p className="text-xl font-semibold text-white mb-2">Time Zone</p>
+                <p className="text-white/70 text-sm md:text-base leading-relaxed">
+                  I&apos;m based in Pakistan, and open to remote work worldwide
+                </p>
+              </div>
+              <figure className="absolute -right-[4rem] -top-[1rem]">
+                <Globe />
+              </figure>
             </div>
 
-            {/* SaaS Developer Card */}
-            <div className="group">
-              <ElectricBorder
-                color="#7cff67"
-                speed={1}
-                chaos={0.5}
-                thickness={2}
-                style={{ borderRadius: 16 }}
-                className="h-full transition-transform duration-300 group-hover:scale-105"
-              >
-                <div className="p-6 md:p-8 h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[#7cff67]/15 via-[#7cff67]/5 to-transparent backdrop-blur-md min-h-[220px] md:min-h-[260px] rounded-2xl border border-white/10 transition-all duration-300 group-hover:border-white/20">
-                  <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
-                    <FaCloud className="text-5xl md:text-6xl text-[#7cff67] drop-shadow-[0_0_15px_rgba(124,255,103,0.6)]" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-white mb-3 tracking-tight">
-                    SaaS Developer
-                  </h3>
-                  <p className="text-white/70 text-sm md:text-base leading-relaxed">
-                    Building scalable cloud-based software solutions
-                  </p>
-                </div>
-              </ElectricBorder>
+            {/* Grid 4 - CTA */}
+            <div className="relative overflow-hidden p-6 bg-gradient-to-br from-[#3A29FF] to-[#7a57db] rounded-2xl row-span-1 md:col-span-2 h-[15rem] md:h-full group hover:-translate-y-1 duration-300 border border-[#3A29FF]/50 shadow-lg shadow-[#3A29FF]/30 hover:shadow-[#3A29FF]/50 transition-all">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+              <div className="flex flex-col items-center justify-center gap-4 size-full relative z-10">
+                <p className="text-xl font-semibold text-white text-center">
+                  Do you want to start a project together?
+                </p>
+                <CopyEmailButton email="devsaadm@gmail.com" />
+              </div>
+            </div>
+
+            {/* Grid 5 - Tech Stack with Orbiting Icons */}
+            <div className="relative overflow-hidden p-6 bg-[#060010] rounded-2xl row-span-1 md:col-span-4 h-[18rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#FF94B4]/50 shadow-lg hover:shadow-[#FF94B4]/20 transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FF94B4]/10 via-transparent to-[#3A29FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10 w-[50%]">
+                <p className="text-xl font-semibold text-white mb-2">Tech Stack</p>
+                <p className="text-white/70 text-sm md:text-base leading-relaxed">
+                  I specialize in a variety of languages, frameworks, and tools that
+                  allow me to build robust and scalable applications
+                </p>
+              </div>
+              <div className="absolute top-1/2 -translate-y-1/2 right-[-200px] md:right-[-180px]">
+                <Frameworks />
+              </div>
             </div>
           </div>
         </div>
@@ -901,29 +991,91 @@ export default function Home() {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="relative z-[1] w-full py-8 md:py-10 px-4 sm:px-6 md:px-8 lg:px-12">
-        <div className="w-full max-w-7xl mx-auto">
+      <section 
+        id="projects" 
+        className="relative z-[1] w-full py-12 md:py-16 px-4 sm:px-6 md:px-8 lg:px-12"
+        onMouseMove={(e) => {
+          const mouseX = e.clientX + 20;
+          const mouseY = e.clientY + 20;
+          const previewEl = document.getElementById('project-preview');
+          if (previewEl) {
+            previewEl.style.left = `${mouseX}px`;
+            previewEl.style.top = `${mouseY}px`;
+          }
+        }}
+      >
+        <div className="w-full max-w-5xl mx-auto">
           {/* Section Header */}
-          <div className="mb-6 md:mb-8 text-center fade-in-up">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 tracking-tight">
-              <span className="animated-gradient-text">Projects</span>
+          <div className="mb-8 md:mb-12 fade-in-up text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+              My Selected <span className="animated-gradient-text">Projects</span>
             </h2>
-            <div className="w-20 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto"></div>
           </div>
 
-          {/* Projects Grid */}
+          {/* Divider */}
+          <div className="bg-gradient-to-r from-transparent via-white/30 to-transparent h-[1px] w-full mb-4"></div>
+
+          {/* Projects List */}
           <div className="fade-in-up">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {projects.map((project) => (
-                <TiltedProjectCard
-                  key={project.id}
-                  project={project}
-                  onClick={() => setSelectedProject(project)}
-                />
-              ))}
-            </div>
+            {projects.map((project) => (
+              <div key={project.id}>
+                <div 
+                  className="flex flex-wrap items-center justify-between py-8 md:py-10 space-y-4 sm:space-y-0 group cursor-pointer"
+                  onMouseEnter={() => setPreviewImage(project.image)}
+                  onMouseLeave={() => setPreviewImage(null)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xl md:text-2xl font-semibold text-white group-hover:text-[#3A29FF] transition-colors duration-300">
+                      {project.title}
+                    </p>
+                    <div className="flex flex-wrap gap-3 md:gap-5 mt-2 text-white/60 text-sm md:text-base">
+                      {project.tools.slice(0, 4).map((tool, index) => (
+                        <span key={index} className="hover:text-white/80 transition-colors">{tool}</span>
+                      ))}
+                      {project.tools.length > 4 && (
+                        <span className="text-white/40">+{project.tools.length - 4} more</span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedProject(project)}
+                    className="flex items-center gap-2 px-4 py-2 text-white/80 hover:text-white font-medium transition-all duration-300 group-hover:translate-x-1"
+                  >
+                    Read More
+                    <svg 
+                      className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="bg-gradient-to-r from-transparent via-white/20 to-transparent h-[1px] w-full"></div>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Floating Preview Image */}
+        {previewImage && (
+          <div 
+            id="project-preview"
+            className="fixed z-50 pointer-events-none hidden lg:block"
+            style={{ transition: 'left 0.1s ease-out, top 0.1s ease-out' }}
+          >
+            <motion.img
+              src={previewImage}
+              alt="Project Preview"
+              className="w-80 h-56 object-cover rounded-lg shadow-2xl shadow-[#3A29FF]/30 border border-white/20"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2 }}
+            />
+          </div>
+        )}
       </section>
 
       {/* Project Modal */}
@@ -933,55 +1085,52 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
             onClick={() => setSelectedProject(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#060010] via-[#1a0a2e] to-[#060010] rounded-3xl border border-white/20 shadow-2xl"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+              className="relative w-full max-w-2xl bg-gradient-to-l from-[#060010] to-[#1a0a2e] rounded-2xl border border-white/10 shadow-2xl my-8"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
               <button
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all duration-200 hover:scale-110"
+                className="absolute top-5 right-5 z-10 p-2 rounded-lg bg-[#060010] hover:bg-white/10 text-white transition-all duration-200"
               >
-                <FaTimes className="text-lg" />
+                <FaTimes className="w-5 h-5" />
               </button>
 
               {/* Project Image */}
-              <div className="relative w-full h-64 md:h-80 overflow-hidden rounded-t-3xl">
+              <div className="relative w-full overflow-hidden rounded-t-2xl">
                 <img
                   src={selectedProject.image}
                   alt={selectedProject.title}
-                  className="w-full h-full object-cover"
+                  className="w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#060010] via-transparent to-transparent"></div>
               </div>
 
               {/* Project Content */}
-              <div className="p-6 md:p-8">
-                <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-                  <span className="animated-gradient-text">{selectedProject.title}</span>
-                </h2>
+              <div className="p-5 md:p-6">
+                <h5 className="text-2xl font-bold text-white mb-3">
+                  {selectedProject.title}
+                </h5>
 
-                <p className="text-white/80 text-base md:text-lg leading-7 mb-6">
+                <p className="text-neutral-400 mb-4 leading-relaxed">
                   {selectedProject.description}
                 </p>
 
-                {/* Tools & Technologies */}
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                    <FaCode className="text-[#3A29FF]" />
-                    Tools & Technologies
-                  </h3>
+                {/* Tools & Links Row */}
+                <div className="flex flex-wrap items-center justify-between mt-5 gap-4">
+                  {/* Tools */}
                   <div className="flex flex-wrap gap-2">
                     {selectedProject.tools.map((tool, index) => (
                       <span
                         key={index}
-                        className="px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium backdrop-blur-sm hover:bg-white/20 transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-white/80 text-sm font-medium hover:bg-white/20 transition-colors"
                       >
                         {tool}
                       </span>
@@ -990,16 +1139,19 @@ export default function Home() {
                 </div>
 
                 {/* Links */}
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4 mt-5 pt-5 border-t border-white/10">
                   {selectedProject.githubUrl && (
                     <a
                       href={selectedProject.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#3A29FF] to-[#FF94B4] text-white font-semibold hover:scale-105 transition-transform duration-200 shadow-lg shadow-[#3A29FF]/50"
+                      className="inline-flex items-center gap-2 text-white/80 hover:text-white font-medium transition-all duration-200 hover:translate-x-1"
                     >
                       <FaGithub className="text-lg" />
-                      View on GitHub
+                      View Code
+                      <svg className="w-4 h-4 -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                      </svg>
                     </a>
                   )}
                   {selectedProject.liveUrl && (
@@ -1007,10 +1159,13 @@ export default function Home() {
                       href={selectedProject.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-semibold hover:bg-white/20 transition-all duration-200 backdrop-blur-sm"
+                      className="inline-flex items-center gap-2 text-white/80 hover:text-white font-medium transition-all duration-200 hover:translate-x-1"
                     >
-                      <FaExternalLinkAlt className="text-lg" />
+                      <FaExternalLinkAlt className="text-sm" />
                       Live Demo
+                      <svg className="w-4 h-4 -rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                      </svg>
                     </a>
                   )}
                 </div>

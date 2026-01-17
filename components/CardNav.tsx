@@ -276,7 +276,11 @@ const CardNav: React.FC<CardNavProps> = ({
           </div>
 
           <div className="logo-container flex items-center md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 order-1 md:order-none">
-            <img src={logo} alt={logoAlt} className="logo h-[32px] md:h-[36px] w-auto" />
+            {logo ? (
+              <img src={logo} alt={logoAlt} className="logo h-[40px] md:h-[44px] w-auto object-contain" style={{ minWidth: '40px' }} />
+            ) : (
+              <span className="text-white font-bold text-xl">MS</span>
+            )}
           </div>
 
           <a

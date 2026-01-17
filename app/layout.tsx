@@ -13,10 +13,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Muhammad Saad's Portfolio",
+  title: "saadmdev portfolio",
   description: "Check out my projects, skills, and work experience.",
+  icons: {
+    icon: "/logo-white.svg",
+    shortcut: "/logo-white.svg",
+    apple: "/logo-white.svg",
+  },
   openGraph: {
-    title: "Muhammad Saad's Portfolio",
+    title: "saadmdev portfolio",
     description: "Check out my projects, skills, and work experience.",
     url: "https://portfolio-lvpd4p766-muhammd-saads-projects.vercel.app",
     type: "website",
@@ -25,13 +30,13 @@ export const metadata: Metadata = {
         url: "https://portfolio-lvpd4p766-muhammd-saads-projects.vercel.app/preview-image.png",
         width: 1200,
         height: 630,
-        alt: "Muhammad Saad's Portfolio",
+        alt: "saadmdev portfolio",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Muhammad Saad's Portfolio",
+    title: "saadmdev portfolio",
     description: "Check out my projects, skills, and work experience.",
     images: ["https://portfolio-lvpd4p766-muhammd-saads-projects.vercel.app/preview-image.png"],
   },

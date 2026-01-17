@@ -48,20 +48,20 @@ export default function RotatingText({ texts, delay = 3000, className = '' }: Ro
   };
 
   return (
-    <div className={`relative ${className}`} style={{ minHeight: '3rem' }}>
+    <div className="relative" style={{ minHeight: '1.2em' }}>
       <AnimatePresence mode="wait">
-        <motion.p
+        <motion.span
           key={currentIndex}
           variants={isMobile ? mobileVariants : desktopVariants}
           initial="initial"
           animate="animate"
           exit="exit"
           transition={{ duration: isMobile ? 0.3 : 0.5, ease: 'easeInOut' }}
-          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white/80 font-light leading-relaxed"
+          className={className || "text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white/80 font-light leading-relaxed"}
         >
           {texts[currentIndex]}
-          <span className="text-[#3A29FF] ml-2">•</span>
-        </motion.p>
+          <span className="text-[#FF3232] ml-2">•</span>
+        </motion.span>
       </AnimatePresence>
     </div>
   );
