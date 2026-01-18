@@ -2,6 +2,23 @@
 'use client';
 
 import { useRef, useState, useEffect, forwardRef } from 'react';
+// Utility to detect mobile devices
+function isMobileDevice() {
+  if (typeof navigator === 'undefined') return false;
+  return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+}
+// Static fallback for mobile devices
+const MobileDither = () => (
+  <div
+    className="w-full h-full relative"
+    style={{
+      background: 'linear-gradient(135deg, #222 0%, #444 100%)',
+      minHeight: '100vh',
+    }}
+  >
+    {/* Optionally add a message or image here */}
+  </div>
+);
 import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
 import { EffectComposer, wrapEffect } from '@react-three/postprocessing';
 import { Effect } from 'postprocessing';
@@ -300,6 +317,7 @@ interface DitherProps {
   mouseRadius?: number;
 }
 
+
 export default function Dither({
   waveSpeed = 0.05,
   waveFrequency = 3,
@@ -311,6 +329,19 @@ export default function Dither({
   enableMouseInteraction = true,
   mouseRadius = 1
 }: DitherProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+    const handleResize = () => setIsMobile(isMobileDevice());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (isMobile) {
+    return <MobileDither />;
+  }
+
   return (
     <Canvas
       className="w-full h-full relative"

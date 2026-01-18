@@ -1,7 +1,32 @@
 "use client";
 
+
 import createGlobe from "cobe";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+// Utility to detect mobile devices
+function isMobileDevice() {
+  if (typeof navigator === 'undefined') return false;
+  return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+}
+
+// Static fallback for mobile devices
+function MobileGlobe({ size = 480, className }: { size?: number; className?: string }) {
+  return (
+    <div
+      className={className}
+      style={{
+        width: size,
+        height: size,
+        maxWidth: "100%",
+        aspectRatio: "1",
+        background: "radial-gradient(circle at 60% 40%, #e0e7ef 0%, #b6c6e3 60%, #7a8ca7 100%)",
+        borderRadius: "50%",
+        boxShadow: "0 0 32px 0 #b6c6e3, 0 0 0 8px #e0e7ef inset",
+      }}
+    />
+  );
+}
 
 interface GlobeProps {
   className?: string;
@@ -9,6 +34,7 @@ interface GlobeProps {
 }
 
 export function Globe({ className, size = 480 }: GlobeProps) {
+  const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
   const phiRef = useRef(0);
@@ -16,7 +42,14 @@ export function Globe({ className, size = 480 }: GlobeProps) {
   const pointerInteractionMovement = useRef(0);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    setIsMobile(isMobileDevice());
+    const handleResize = () => setIsMobile(isMobileDevice());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile || !canvasRef.current) return;
 
     // Destroy previous globe if exists
     if (globeRef.current) {
@@ -64,7 +97,11 @@ export function Globe({ className, size = 480 }: GlobeProps) {
         globeRef.current = null;
       }
     };
-  }, [size]);
+  }, [size, isMobile]);
+
+  if (isMobile) {
+    return <MobileGlobe size={size} className={className} />;
+  }
 
   return (
     <div className={className}>
