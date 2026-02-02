@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
+import { supportsWebGL } from './utils/webgl';
 
 // Check if device is mobile/low-power
 const isMobileDevice = () => {
@@ -149,10 +150,12 @@ export default function Aurora(props: AuroraProps) {
 
   const ctnDom = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [hasWebGL2, setHasWebGL2] = useState(true);
 
   // Check for mobile on mount
   useEffect(() => {
     setIsMobile(isMobileDevice());
+    setHasWebGL2(supportsWebGL('webgl2'));
     
     const handleResize = () => {
       setIsMobile(isMobileDevice());
@@ -164,7 +167,7 @@ export default function Aurora(props: AuroraProps) {
 
   useEffect(() => {
     // Skip WebGL for mobile devices
-    if (isMobile) return;
+    if (isMobile || !hasWebGL2) return;
     
     const ctn = ctnDom.current;
     if (!ctn) return;
@@ -249,13 +252,12 @@ export default function Aurora(props: AuroraProps) {
       }
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [amplitude, isMobile]);
+  }, [amplitude, hasWebGL2, isMobile]);
 
   // Render mobile-friendly gradient for mobile devices
-  if (isMobile) {
+  if (isMobile || !hasWebGL2) {
     return <MobileAurora colorStops={colorStops} />;
   }
 
   return <div ref={ctnDom} className="w-full h-full fixed inset-0 -z-10" />;
 }
-

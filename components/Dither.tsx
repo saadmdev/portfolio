@@ -2,6 +2,7 @@
 'use client';
 
 import { useRef, useState, useEffect, forwardRef } from 'react';
+import { supportsWebGL } from './utils/webgl';
 // Utility to detect mobile devices
 function isMobileDevice() {
   if (typeof navigator === 'undefined') return false;
@@ -330,15 +331,17 @@ export default function Dither({
   mouseRadius = 1
 }: DitherProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const [hasWebGL, setHasWebGL] = useState(true);
 
   useEffect(() => {
     setIsMobile(isMobileDevice());
+    setHasWebGL(supportsWebGL('webgl') || supportsWebGL('webgl2'));
     const handleResize = () => setIsMobile(isMobileDevice());
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  if (isMobile) {
+  if (isMobile || !hasWebGL) {
     return <MobileDither />;
   }
 
@@ -363,4 +366,3 @@ export default function Dither({
     </Canvas>
   );
 }
-
