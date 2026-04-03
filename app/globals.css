@@ -1,8 +1,13 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Cool accent ramp: electric violet → periwinkle blue → teal (section headings & highlights) */
+  --accent-gradient-start: #3a29ff;
+  --accent-gradient-mid: #5b8def;
+  --accent-gradient-end: #14b8a6;
 }
 
 @theme inline {
@@ -35,6 +40,17 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Lenis handles inertial scroll; native smooth would stack awkwardly */
+html.lenis {
+  scroll-behavior: auto;
 }
 
 body {
@@ -84,13 +100,13 @@ select {
 @keyframes text-glow {
   0%, 100% {
     text-shadow: 0 0 20px rgba(58, 41, 255, 0.5),
-                 0 0 40px rgba(255, 148, 180, 0.3),
-                 0 0 60px rgba(255, 50, 50, 0.2);
+                 0 0 40px rgba(91, 141, 239, 0.35),
+                 0 0 60px rgba(20, 184, 166, 0.25);
   }
   50% {
     text-shadow: 0 0 30px rgba(58, 41, 255, 0.8),
-                 0 0 60px rgba(255, 148, 180, 0.5),
-                 0 0 90px rgba(255, 50, 50, 0.3);
+                 0 0 60px rgba(91, 141, 239, 0.45),
+                 0 0 90px rgba(20, 184, 166, 0.35);
   }
 }
 
@@ -122,12 +138,12 @@ select {
     text-shadow: 0 0 10px rgba(58, 41, 255, 0.5);
   }
   33% {
-    color: #FF94B4;
-    text-shadow: 0 0 10px rgba(255, 148, 180, 0.5);
+    color: #5B8DEF;
+    text-shadow: 0 0 10px rgba(91, 141, 239, 0.5);
   }
   66% {
-    color: #FF3232;
-    text-shadow: 0 0 10px rgba(255, 50, 50, 0.5);
+    color: #14B8A6;
+    text-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
   }
   100% {
     color: #3A29FF;
@@ -174,9 +190,9 @@ select {
 .animated-gradient-text {
   background: linear-gradient(
     90deg,
-    #3A29FF 0%,
-    #FF94B4 50%,
-    #FF3232 100%
+    var(--accent-gradient-start) 0%,
+    var(--accent-gradient-mid) 50%,
+    var(--accent-gradient-end) 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -206,7 +222,12 @@ select {
   /* Reduce animations on mobile for better performance */
   .animated-gradient-text {
     animation: none;
-    background: linear-gradient(90deg, #3A29FF 0%, #FF94B4 50%, #FF3232 100%);
+    background: linear-gradient(
+      90deg,
+      var(--accent-gradient-start) 0%,
+      var(--accent-gradient-mid) 50%,
+      var(--accent-gradient-end) 100%
+    );
     background-size: 100% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -241,17 +262,6 @@ select {
 
   .slide-in-left {
     animation: slide-in-left 0.5s ease-out;
-  }
-
-  /* Force hardware acceleration for smooth scrolling */
-  * {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-
-  /* Optimize will-change for mobile */
-  .will-change-transform {
-    will-change: auto;
   }
 }
 

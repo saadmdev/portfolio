@@ -29,7 +29,7 @@ interface FuzzyTextProps {
   className?: string;
 }
 
-// Simple mobile fallback component
+// Simple mobile fallback — same typography intent as desktop, no canvas (avoids hook churn)
 const MobileFuzzyText: React.FC<{
   children: React.ReactNode;
   fontSize?: number | string;
@@ -37,16 +37,31 @@ const MobileFuzzyText: React.FC<{
   fontFamily?: string;
   color?: string;
   className?: string;
-}> = ({ children, fontSize, fontWeight, fontFamily, color, className }) => {
+  gradient?: string[] | null;
+}> = ({ children, fontSize, fontWeight, fontFamily, color, className, gradient }) => {
+  const useGradient = gradient && Array.isArray(gradient) && gradient.length >= 2;
+  const gradientCss = useGradient
+    ? `linear-gradient(90deg, ${gradient.join(', ')})`
+    : undefined;
+
   return (
     <span
       className={className}
       style={{
         fontSize: typeof fontSize === 'number' ? `${fontSize}px` : fontSize,
-        fontWeight: fontWeight as any,
+        fontWeight: fontWeight as React.CSSProperties['fontWeight'],
         fontFamily,
-        color,
-        display: 'inline-block'
+        display: 'inline-block',
+        maxWidth: '100%',
+        ...(useGradient
+          ? {
+              background: gradientCss,
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              color: 'transparent'
+            }
+          : { color })
       }}
     >
       {children}
@@ -81,25 +96,15 @@ const FuzzyText: React.FC<FuzzyTextProps> = (props) => {
   const canvasRef = useRef<HTMLCanvasElement & { cleanupFuzzyText?: () => void }>(null);
 
   useEffect(() => {
-    setIsMobile(isMobileDevice());
+    const sync = () => setIsMobile(isMobileDevice());
+    sync();
+    window.addEventListener('resize', sync);
+    return () => window.removeEventListener('resize', sync);
   }, []);
 
-  // Return simple text on mobile
-  if (isMobile) {
-    return (
-      <MobileFuzzyText
-        fontSize={fontSize}
-        fontWeight={fontWeight}
-        fontFamily={fontFamily}
-        color={color}
-        className={className}
-      >
-        {children}
-      </MobileFuzzyText>
-    );
-  }
-
   useEffect(() => {
+    if (isMobile) return;
+
     let animationFrameId: number;
     let isCancelled = false;
     let glitchTimeoutId: ReturnType<typeof setTimeout>;
@@ -353,7 +358,42 @@ const FuzzyText: React.FC<FuzzyTextProps> = (props) => {
         canvas.cleanupFuzzyText();
       }
     };
-  }, [children, fontSize, fontWeight, fontFamily, color, enableHover, baseIntensity, hoverIntensity, fuzzRange, fps, direction, transitionDuration, clickEffect, glitchMode, glitchInterval, glitchDuration, gradient, letterSpacing]);
+  }, [
+    isMobile,
+    children,
+    fontSize,
+    fontWeight,
+    fontFamily,
+    color,
+    enableHover,
+    baseIntensity,
+    hoverIntensity,
+    fuzzRange,
+    fps,
+    direction,
+    transitionDuration,
+    clickEffect,
+    glitchMode,
+    glitchInterval,
+    glitchDuration,
+    gradient,
+    letterSpacing
+  ]);
+
+  if (isMobile) {
+    return (
+      <MobileFuzzyText
+        fontSize={fontSize}
+        fontWeight={fontWeight}
+        fontFamily={fontFamily}
+        color={color}
+        className={className}
+        gradient={gradient}
+      >
+        {children}
+      </MobileFuzzyText>
+    );
+  }
 
   return <canvas ref={canvasRef} className={className} />;
 };

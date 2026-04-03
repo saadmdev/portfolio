@@ -85,7 +85,7 @@ export default function Stepper({
         className={`mx-auto w-full max-w-4xl rounded-2xl shadow-2xl backdrop-blur-xl bg-white/8 border border-white/30 relative overflow-hidden ${stepCircleContainerClassName}`}
       >
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#3A29FF]/10 via-transparent to-[#FF94B4]/10 opacity-50 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#3A29FF]/10 via-transparent to-[#5B8DEF]/10 opacity-50 pointer-events-none"></div>
         <div className="relative z-10">
           <div className={`${stepContainerClassName} flex w-full items-center p-4 md:p-6 relative z-10`}>
           {stepsArray.map((_, index) => {
@@ -148,7 +148,7 @@ export default function Stepper({
               )}
               <button
                 onClick={isLastStep ? handleComplete : handleNext}
-                className="duration-350 flex items-center justify-center rounded-lg bg-gradient-to-r from-[#3A29FF] to-[#FF94B4] py-3 px-6 font-medium tracking-tight text-white transition hover:from-[#4A39FF] hover:to-[#FFA4C4] active:scale-95 shadow-lg shadow-[#3A29FF]/30"
+                className="duration-350 flex items-center justify-center rounded-lg bg-gradient-to-r from-[#3A29FF] to-[#5B8DEF] py-3 px-6 font-medium tracking-tight text-white transition hover:from-[#4A39FF] hover:to-[#7eb0f2] active:scale-95 shadow-lg shadow-[#3A29FF]/30"
                 {...nextButtonProps}
               >
                 {isLastStep ? 'Complete' : nextButtonText}

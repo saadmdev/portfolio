@@ -162,17 +162,17 @@ const VARIANTS = {
     noFocus: false
   },
   purplePink: {
-    activeColor: '#fda4af',
+    activeColor: '#5B8DEF',
     gap: 6,
     speed: 70,
-    colors: '#3A29FF,#8b5cf6,#fda4af,#FF94B4',
+    colors: '#3A29FF,#6366f1,#5B8DEF,#14B8A6',
     noFocus: false
   },
   pinkRed: {
-    activeColor: '#fda4af',
+    activeColor: '#5B8DEF',
     gap: 6,
     speed: 75,
-    colors: '#FF94B4,#fda4af,#FF3232,#e11d48',
+    colors: '#5B8DEF,#0ea5e9,#14B8A6,#0d9488',
     noFocus: false
   },
   greenPurple: {
@@ -191,6 +191,8 @@ interface PixelCardProps {
   colors?: string;
   noFocus?: boolean;
   className?: string;
+  /** Tighter padding and natural height — useful for dense lists (e.g. education). */
+  compact?: boolean;
   children: React.ReactNode;
 }
 
@@ -209,6 +211,7 @@ export default function PixelCard({
   colors,
   noFocus,
   className = '',
+  compact = false,
   children
 }: PixelCardProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -238,15 +241,17 @@ export default function PixelCard({
   const initPixels = () => {
     if (isMobile || !containerRef.current || !canvasRef.current) return;
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const width = Math.floor(rect.width);
-    const height = Math.floor(rect.height);
+    // Use layout box size (clientWidth/clientHeight), not getBoundingClientRect — ancestor
+    // transforms can make the bounding rect not match the content box.
+    const el = containerRef.current;
+    const width = Math.max(1, Math.floor(el.clientWidth));
+    const height = Math.max(1, Math.floor(el.clientHeight));
     const ctx = canvasRef.current.getContext('2d');
 
     canvasRef.current.width = width;
     canvasRef.current.height = height;
-    canvasRef.current.style.width = `${width}px`;
-    canvasRef.current.style.height = `${height}px`;
+    canvasRef.current.style.width = '100%';
+    canvasRef.current.style.height = '100%';
 
     const colorsArray = finalColors.split(',');
 
@@ -344,16 +349,18 @@ export default function PixelCard({
   return (
     <div
       ref={containerRef}
-      className={`h-full w-full relative overflow-hidden border border-white/30 rounded-2xl isolate transition-all duration-300 ease-[cubic-bezier(0.5,1,0.89,1)] select-none backdrop-blur-xl bg-white/5 hover:border-white/50 hover:shadow-2xl ${className}`}
+      className={`w-full relative overflow-hidden border border-white/30 rounded-2xl isolate transition-all duration-300 ease-[cubic-bezier(0.5,1,0.89,1)] select-none backdrop-blur-xl bg-white/5 hover:border-white/50 hover:shadow-2xl ${compact ? 'h-auto min-h-0' : 'h-full'} ${className}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={finalNoFocus ? undefined : onFocus}
       onBlur={finalNoFocus ? undefined : onBlur}
       tabIndex={finalNoFocus ? -1 : 0}
-      style={{ height: '100%', width: '100%' }}
+      style={{ height: compact ? 'auto' : '100%', width: '100%' }}
     >
       <canvas className="absolute inset-0 w-full h-full block pointer-events-none" ref={canvasRef} />
-      <div className="relative z-10 w-full h-full p-4 md:p-6">
+      <div
+        className={`relative z-10 w-full ${compact ? 'p-3 md:py-3.5 md:px-4' : 'h-full p-4 md:p-6'}`}
+      >
         {children}
       </div>
     </div>

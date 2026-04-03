@@ -7,7 +7,6 @@ import Aurora from "@/components/Aurora";
 import CardNav from "@/components/CardNav";
 import ElectricBorder from "@/components/ElectricBorder";
 import Stepper, { Step } from "@/components/Stepper";
-import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
 import PixelCard from "@/components/PixelCard";
 import MagicBento from "@/components/MagicBento";
 import LogoLoop from "@/components/LogoLoop";
@@ -195,36 +194,37 @@ export default function Home() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  // Initialize Lenis for smooth scrolling
+  // Initialize Lenis for smooth scrolling (wheel + touch sync; skipped only for reduced motion)
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      // `smoothTouch` is not present in the local Lenis type definitions; keep runtime option
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      smoothTouch: false,
-      touchMultiplier: 2,
-      infinite: false,
-    } as any);
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Animation frame loop
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    if (prefersReducedMotion) {
+      return;
     }
 
-    requestAnimationFrame(raf);
+    const narrow = typeof window !== 'undefined' && window.innerWidth < 768;
 
-    // Store lenis instance globally for use in other components
-    (window as any).lenis = lenis;
+    const lenis = new Lenis({
+      duration: narrow ? 1.05 : 1.25,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      lerp: narrow ? 0.1 : 0.075,
+      wheelMultiplier: narrow ? 0.92 : 1,
+      touchMultiplier: narrow ? 1.15 : 1.85,
+      syncTouch: true,
+      syncTouchLerp: narrow ? 0.085 : 0.075,
+      infinite: false,
+      autoRaf: true,
+    });
 
-    // Cleanup on unmount
+    window.lenis = lenis;
+
     return () => {
       lenis.destroy();
-      delete (window as any).lenis;
+      delete window.lenis;
     };
   }, []);
 
@@ -297,7 +297,7 @@ export default function Home() {
     },
     {
       label: "Work",
-      bgColor: "rgba(255, 148, 180, 0.15)",
+      bgColor: "rgba(91, 141, 239, 0.15)",
       textColor: "#fff",
       links: [
         { label: "Projects", href: "#projects", ariaLabel: "View Projects" },
@@ -307,7 +307,7 @@ export default function Home() {
     },
     {
       label: "Contact",
-      bgColor: "rgba(255, 50, 50, 0.15)",
+      bgColor: "rgba(20, 184, 166, 0.15)",
       textColor: "#fff",
       links: [
         { label: "Get In Touch", href: "#contact", ariaLabel: "Contact Section" },
@@ -321,7 +321,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen font-sans overflow-x-hidden">
       <Aurora
-        colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
+        colorStops={["#3A29FF", "#5B8DEF", "#14B8A6"]}
         blend={0.5}
         amplitude={1.0}
         speed={0.5}
@@ -372,7 +372,7 @@ export default function Home() {
                     <RotatingText
                       texts={['Modern', 'Scalable', 'Secure']}
                       delay={3000}
-                      className="text-7xl lg:text-9xl font-black bg-gradient-to-r from-[#3A29FF] via-[#FF94B4] to-[#FF3232] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,41,255,0.5)]"
+                      className="text-7xl lg:text-9xl font-black bg-gradient-to-r from-[#3A29FF] via-[#5B8DEF] to-[#14B8A6] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,41,255,0.5)]"
                     />
                   </motion.div>
                   <motion.p
@@ -413,7 +413,7 @@ export default function Home() {
                     <RotatingText
                       texts={['Modern', 'Scalable', 'Secure']}
                       delay={3000}
-                      className="text-6xl sm:text-7xl font-black bg-gradient-to-r from-[#3A29FF] via-[#FF94B4] to-[#FF3232] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,41,255,0.5)]"
+                      className="text-6xl sm:text-7xl font-black bg-gradient-to-r from-[#3A29FF] via-[#5B8DEF] to-[#14B8A6] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(58,41,255,0.5)]"
                     />
                   </motion.div>
                   <motion.p
@@ -434,7 +434,7 @@ export default function Home() {
                 >
                   <a
                     href="#contact"
-                    className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[#3A29FF] to-[#FF94B4] text-white font-semibold text-lg shadow-lg shadow-[#3A29FF]/30 hover:shadow-[#3A29FF]/50 transition-all duration-300"
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[#3A29FF] to-[#5B8DEF] text-white font-semibold text-lg shadow-lg shadow-[#3A29FF]/30 hover:shadow-[#3A29FF]/50 transition-all duration-300"
                   >
                     Let's Work Together
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -470,11 +470,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4 md:auto-rows-[18rem] fade-in-up">
             {/* Grid 1 - Main Intro */}
             <div className="relative overflow-hidden p-6 bg-[#060010] rounded-2xl row-span-1 md:row-span-2 md:col-span-3 h-[20rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#3A29FF]/50 shadow-lg hover:shadow-[#3A29FF]/20 transition-all">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#3A29FF]/10 via-transparent to-[#FF94B4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#3A29FF]/10 via-transparent to-[#5B8DEF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <img
                 src="/coding-pov.png"
                 alt="Coding POV"
                 className="absolute scale-[1.75] -right-[5rem] -top-[1rem] md:scale-[3] md:left-50 md:inset-y-10 lg:scale-[2.5] opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+                loading="lazy"
               />
               <div className="relative z-10 h-full flex flex-col justify-end">
                 <p className="text-xl md:text-2xl font-semibold text-white mb-2">Hi, I'm Muhammad Saad</p>
@@ -487,8 +488,8 @@ export default function Home() {
             </div>
 
             {/* Grid 2 - Code is Craft (Interactive) */}
-            <div className="relative overflow-hidden bg-[#060010] rounded-2xl row-span-1 md:col-span-3 h-[18rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#FF94B4]/50 shadow-lg hover:shadow-[#FF94B4]/20 transition-all">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF94B4]/5 via-transparent to-[#3A29FF]/5"></div>
+            <div className="relative overflow-hidden bg-[#060010] rounded-2xl row-span-1 md:col-span-3 h-[18rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#5B8DEF]/50 shadow-lg hover:shadow-[#5B8DEF]/20 transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#5B8DEF]/5 via-transparent to-[#3A29FF]/5"></div>
               <div 
                 ref={grid2ContainerRef}
                 className="flex items-center justify-center w-full h-full relative"
@@ -575,17 +576,17 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Grid 3 - Location/Timezone with Globe */}
-            <div className="relative overflow-hidden p-6 bg-[#060010] rounded-2xl row-span-1 md:col-span-3 h-[20rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#3A29FF]/50 shadow-lg hover:shadow-[#3A29FF]/20 transition-all">
-              <div className="absolute inset-0 bg-gradient-to-tl from-[#3A29FF]/10 via-transparent to-[#FF3232]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10 w-[50%]">
+            {/* Grid 3 - Location/Timezone (globe desktop only — cleaner on mobile) */}
+            <div className="relative overflow-hidden p-6 bg-[#060010] rounded-2xl row-span-1 md:col-span-3 min-h-[11rem] h-auto md:min-h-0 md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#3A29FF]/50 shadow-lg hover:shadow-[#3A29FF]/20 transition-all">
+              <div className="absolute inset-0 bg-gradient-to-tl from-[#3A29FF]/10 via-transparent to-[#14B8A6]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10 w-full md:w-1/2 md:max-w-[50%] pr-0 md:pr-4">
                 <p className="text-xl font-semibold text-white mb-2">Time Zone</p>
                 <p className="text-white/70 text-sm md:text-base leading-relaxed">
                   I&apos;m based in Pakistan, and open to remote work worldwide
                 </p>
               </div>
-              <figure className="absolute -right-[4rem] -top-[1rem]">
-                <Globe />
+              <figure className="hidden md:block absolute -right-[4rem] -top-[1rem] pointer-events-none" aria-hidden>
+                <Globe size={360} />
               </figure>
             </div>
 
@@ -601,8 +602,8 @@ export default function Home() {
             </div>
 
             {/* Grid 5 - Tech Stack with Orbiting Icons */}
-            <div className="relative overflow-hidden p-6 bg-[#060010] rounded-2xl row-span-1 md:col-span-4 h-[18rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#FF94B4]/50 shadow-lg hover:shadow-[#FF94B4]/20 transition-all">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF94B4]/10 via-transparent to-[#3A29FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative overflow-hidden p-6 bg-[#060010] rounded-2xl row-span-1 md:col-span-4 h-[18rem] md:h-full group hover:-translate-y-1 duration-300 border border-white/10 hover:border-[#5B8DEF]/50 shadow-lg hover:shadow-[#5B8DEF]/20 transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#5B8DEF]/10 via-transparent to-[#3A29FF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative z-10 w-[50%]">
                 <p className="text-xl font-semibold text-white mb-2">Tech Stack</p>
                 <p className="text-white/70 text-sm md:text-base leading-relaxed">
@@ -644,7 +645,7 @@ export default function Home() {
                 <div className="space-y-4 md:space-y-5">
                   <div className="flex items-start gap-3 md:gap-4">
                     <div className="flex-shrink-0 ml-2 md:ml-0">
-                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-[#3A29FF] to-[#FF94B4] flex items-center justify-center shadow-lg shadow-[#3A29FF]/50 ring-2 ring-[#3A29FF]/30">
+                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-[#3A29FF] to-[#5B8DEF] flex items-center justify-center shadow-lg shadow-[#3A29FF]/50 ring-2 ring-[#3A29FF]/30">
                         <FaCode className="text-xl md:text-2xl text-white" />
                       </div>
                     </div>
@@ -700,7 +701,7 @@ export default function Home() {
                 <div className="space-y-4 md:space-y-5">
                   <div className="flex items-start gap-3 md:gap-4">
                     <div className="flex-shrink-0 ml-2 md:ml-0">
-                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-[#FF94B4] to-[#FF3232] flex items-center justify-center shadow-lg shadow-[#FF94B4]/50 ring-2 ring-[#FF94B4]/30">
+                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-[#5B8DEF] to-[#14B8A6] flex items-center justify-center shadow-lg shadow-[#5B8DEF]/50 ring-2 ring-[#5B8DEF]/30">
                         <FaCloud className="text-xl md:text-2xl text-white" />
                       </div>
                     </div>
@@ -709,7 +710,7 @@ export default function Home() {
                         <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white">
                           Full-Stack Developer
                         </h3>
-                        <span className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gradient-to-r from-[#FF94B4]/40 to-[#FF94B4]/20 text-white text-xs md:text-sm font-semibold border-2 border-[#FF94B4]/50 backdrop-blur-md shadow-lg shadow-[#FF94B4]/30">
+                        <span className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gradient-to-r from-[#5B8DEF]/40 to-[#5B8DEF]/20 text-white text-xs md:text-sm font-semibold border-2 border-[#5B8DEF]/50 backdrop-blur-md shadow-lg shadow-[#5B8DEF]/30">
                           <FaMapMarkerAlt className="text-xs" />
                           X1 Chauffers
                         </span>
@@ -724,25 +725,25 @@ export default function Home() {
                   </div>
 
                   <div className="pl-0 md:pl-0 space-y-3 max-w-4xl mx-auto">
-                    <div className="p-4 md:p-6 rounded-xl bg-gradient-to-br from-white/8 to-white/2 border border-white/20 backdrop-blur-md shadow-lg hover:border-white/30 transition-all duration-300 hover:shadow-xl hover:shadow-[#FF94B4]/20">
+                    <div className="p-4 md:p-6 rounded-xl bg-gradient-to-br from-white/8 to-white/2 border border-white/20 backdrop-blur-md shadow-lg hover:border-white/30 transition-all duration-300 hover:shadow-xl hover:shadow-[#5B8DEF]/20">
                       <p className="text-white/95 text-sm md:text-base leading-relaxed mb-4">
                         Developing the X1 Chauffers luxury transportation platform using Next.js for frontend and NestJS for backend architecture.
                       </p>
                       <ul className="space-y-2.5 text-white/85 text-xs md:text-sm lg:text-base">
                         <li className="flex items-start gap-3 group/item">
-                          <span className="text-[#FF94B4] mt-1 text-base font-bold drop-shadow-[0_0_8px_rgba(255,148,180,0.6)] group-hover/item:drop-shadow-[0_0_12px_rgba(255,148,180,0.8)] transition-all">▹</span>
+                          <span className="text-[#5B8DEF] mt-1 text-base font-bold drop-shadow-[0_0_8px_rgba(91,141,239,0.6)] group-hover/item:drop-shadow-[0_0_12px_rgba(91,141,239,0.8)] transition-all">▹</span>
                           <span className="group-hover/item:text-white/95 transition-colors">Building scalable APIs and microservices to handle ride booking, driver management, and payment processing systems.</span>
                         </li>
                         <li className="flex items-start gap-3 group/item">
-                          <span className="text-[#FF94B4] mt-1 text-base font-bold drop-shadow-[0_0_8px_rgba(255,148,180,0.6)] group-hover/item:drop-shadow-[0_0_12px_rgba(255,148,180,0.8)] transition-all">▹</span>
+                          <span className="text-[#5B8DEF] mt-1 text-base font-bold drop-shadow-[0_0_8px_rgba(91,141,239,0.6)] group-hover/item:drop-shadow-[0_0_12px_rgba(91,141,239,0.8)] transition-all">▹</span>
                           <span className="group-hover/item:text-white/95 transition-colors">Implementing real-time features including live tracking, notifications, and chat functionality for seamless user experience.</span>
                         </li>
                         <li className="flex items-start gap-3 group/item">
-                          <span className="text-[#FF94B4] mt-1 text-base font-bold drop-shadow-[0_0_8px_rgba(255,148,180,0.6)] group-hover/item:drop-shadow-[0_0_12px_rgba(255,148,180,0.8)] transition-all">▹</span>
+                          <span className="text-[#5B8DEF] mt-1 text-base font-bold drop-shadow-[0_0_8px_rgba(91,141,239,0.6)] group-hover/item:drop-shadow-[0_0_12px_rgba(91,141,239,0.8)] transition-all">▹</span>
                           <span className="group-hover/item:text-white/95 transition-colors">Integrating third-party services for geolocation, payment gateways, and SMS notifications to enhance platform capabilities.</span>
                         </li>
                         <li className="flex items-start gap-3 group/item">
-                          <span className="text-[#FF94B4] mt-1 text-base font-bold drop-shadow-[0_0_8px_rgba(255,148,180,0.6)] group-hover/item:drop-shadow-[0_0_12px_rgba(255,148,180,0.8)] transition-all">▹</span>
+                          <span className="text-[#5B8DEF] mt-1 text-base font-bold drop-shadow-[0_0_8px_rgba(91,141,239,0.6)] group-hover/item:drop-shadow-[0_0_12px_rgba(91,141,239,0.8)] transition-all">▹</span>
                           <span className="group-hover/item:text-white/95 transition-colors">Architecting and developing robust backend systems with NestJS, ensuring high performance and scalability.</span>
                         </li>
                       </ul>
@@ -766,100 +767,87 @@ export default function Home() {
             <div className="w-20 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto"></div>
           </div>
 
-          {/* ScrollStack Component */}
-          <div className="fade-in-up">
-            <ScrollStack
-              useWindowScroll={true}
-              itemDistance={60}
-              itemScale={0.04}
-              itemStackDistance={25}
-              stackPosition="20%"
-              scaleEndPosition="8%"
-              baseScale={0.88}
-              rotationAmount={0}
-              blurAmount={2}
-            >
-              {/* FUI - Bachelor's */}
-              <ScrollStackItem>
-                <PixelCard variant="purplePink" className="w-full h-full">
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 h-full">
-                    <div className="flex-shrink-0">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-gradient-to-br from-[#3A29FF] to-[#FF94B4] flex items-center justify-center shadow-lg shadow-[#3A29FF]/50 ring-2 ring-[#3A29FF]/30">
-                        <FaUniversity className="text-2xl md:text-3xl text-white" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1.5">
-                        Foundation University Islamabad (FUI)
-                      </h3>
-                      <p className="text-base md:text-lg text-white/90 mb-2 font-semibold">
-                        Bachelor of Science - BS, Computer Software Engineering
-                      </p>
-                      <div className="flex items-center gap-3 text-white/70 text-xs md:text-sm">
-                        <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm">
-                          <FaCalendarAlt className="text-xs" />
-                          2022 - 2026
-                        </span>
-                      </div>
+          <div className="fade-in-up flex flex-col gap-8 md:gap-10 w-full min-w-0">
+            {/* FUI - Bachelor's */}
+            <div className="relative w-full min-w-0">
+              <PixelCard variant="purplePink" compact className="w-full">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full min-w-0">
+                  <div className="flex-shrink-0">
+                    <div className="w-14 h-14 md:w-[4.25rem] md:h-[4.25rem] rounded-xl bg-gradient-to-br from-[#3A29FF] to-[#5B8DEF] flex items-center justify-center shadow-lg shadow-[#3A29FF]/50 ring-2 ring-[#3A29FF]/30">
+                      <FaUniversity className="text-xl md:text-2xl text-white" />
                     </div>
                   </div>
-                </PixelCard>
-              </ScrollStackItem>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-white mb-1">
+                      Foundation University Islamabad (FUI)
+                    </h3>
+                    <p className="text-sm md:text-base text-white/90 mb-1.5 font-semibold leading-snug">
+                      Bachelor of Science - BS, Computer Software Engineering
+                    </p>
+                    <div className="flex items-center gap-3 text-white/70 text-xs md:text-sm">
+                      <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm">
+                        <FaCalendarAlt className="text-xs" />
+                        2022 - 2026
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </PixelCard>
+            </div>
 
-              {/* APSACS - Intermediate */}
-              <ScrollStackItem>
-                <PixelCard variant="pinkRed" className="w-full h-full">
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 h-full">
-                    <div className="flex-shrink-0">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-gradient-to-br from-[#FF94B4] to-[#FF3232] flex items-center justify-center shadow-lg shadow-[#FF94B4]/50 ring-2 ring-[#FF94B4]/30">
-                        <FaSchool className="text-2xl md:text-3xl text-white" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1.5">
-                        Army Public School - (APSACS)
-                      </h3>
-                      <p className="text-base md:text-lg text-white/90 mb-2 font-semibold">
-                        Intermediate in Computer Science (ICS), Computer Science
-                      </p>
-                      <div className="flex items-center gap-3 text-white/70 text-xs md:text-sm">
-                        <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm">
-                          <FaCalendarAlt className="text-xs" />
-                          Aug 2020 - Aug 2022
-                        </span>
-                      </div>
+            {/* APSACS - Intermediate */}
+            <div className="relative w-full min-w-0">
+              <PixelCard variant="pinkRed" compact className="w-full">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full min-w-0">
+                  <div className="flex-shrink-0">
+                    <div className="w-14 h-14 md:w-[4.25rem] md:h-[4.25rem] rounded-xl bg-gradient-to-br from-[#5B8DEF] to-[#14B8A6] flex items-center justify-center shadow-lg shadow-[#5B8DEF]/50 ring-2 ring-[#5B8DEF]/30">
+                      <FaSchool className="text-xl md:text-2xl text-white" />
                     </div>
                   </div>
-                </PixelCard>
-              </ScrollStackItem>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-white mb-1">
+                      Army Public School - (APSACS)
+                    </h3>
+                    <p className="text-sm md:text-base text-white/90 mb-1.5 font-semibold leading-snug">
+                      Intermediate in Computer Science (ICS), Computer Science
+                    </p>
+                    <div className="flex items-center gap-3 text-white/70 text-xs md:text-sm">
+                      <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm">
+                        <FaCalendarAlt className="text-xs" />
+                        Aug 2020 - Aug 2022
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </PixelCard>
+            </div>
 
-              {/* APSACS - Matriculation */}
-              <ScrollStackItem>
-                <PixelCard variant="greenPurple" className="w-full h-full">
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 h-full">
-                    <div className="flex-shrink-0">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-gradient-to-br from-[#7cff67] to-[#3A29FF] flex items-center justify-center shadow-lg shadow-[#7cff67]/50 ring-2 ring-[#7cff67]/30">
-                        <FaGraduationCap className="text-2xl md:text-3xl text-white" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1.5">
-                        Army Public School - (APSACS)
-                      </h3>
-                      <p className="text-base md:text-lg text-white/90 mb-2 font-semibold">
-                        Matriculation, Science
-                      </p>
-                      <div className="flex items-center gap-3 text-white/70 text-xs md:text-sm">
-                        <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm">
-                          <FaCalendarAlt className="text-xs" />
-                          Aug 2018 - Aug 2020
-                        </span>
-                      </div>
+            {/* APSACS - Matriculation */}
+            <div className="relative w-full min-w-0">
+              <PixelCard variant="greenPurple" compact className="w-full">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-3 w-full min-w-0">
+                  <div className="flex-shrink-0">
+                    <div className="w-14 h-14 md:w-[4.25rem] md:h-[4.25rem] rounded-xl bg-gradient-to-br from-[#7cff67] to-[#3A29FF] flex items-center justify-center shadow-lg shadow-[#7cff67]/50 ring-2 ring-[#7cff67]/30">
+                      <FaGraduationCap className="text-xl md:text-2xl text-white" />
                     </div>
                   </div>
-                </PixelCard>
-              </ScrollStackItem>
-            </ScrollStack>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-white mb-1">
+                      Army Public School - (APSACS)
+                    </h3>
+                    <p className="text-sm md:text-base text-white/90 mb-1.5 font-semibold leading-snug">
+                      Matriculation, Science
+                    </p>
+                    <div className="flex items-center gap-3 text-white/70 text-xs md:text-sm">
+                      <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm">
+                        <FaCalendarAlt className="text-xs" />
+                        Aug 2018 - Aug 2020
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </PixelCard>
+            </div>
           </div>
         </div>
       </section>
@@ -932,58 +920,65 @@ export default function Home() {
       </section>
 
       {/* Tools Section */}
-      <section id="tools" className="relative z-[1] w-full py-8 md:py-10 px-4 sm:px-6 md:px-8 lg:px-12">
+      <section id="tools" className="relative z-[1] w-full py-10 md:py-14 px-4 sm:px-6 md:px-8 lg:px-12">
         <div className="w-full max-w-7xl mx-auto">
           {/* Section Header */}
-          <div className="mb-6 md:mb-8 text-center fade-in-up">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 tracking-tight">
+          <div className="mb-8 md:mb-10 text-center fade-in-up">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
               <span className="animated-gradient-text">Tools & Technologies</span>
             </h2>
-            <div className="w-20 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto"></div>
+            <div className="w-28 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent mx-auto rounded-full" />
           </div>
 
-          {/* LogoLoop Component */}
           <div className="fade-in-up">
-            <div className="relative py-8 md:py-12">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#3A29FF]/20 via-transparent to-[#FF94B4]/20 blur-3xl"></div>
-              <div className="relative backdrop-blur-sm bg-white/5 rounded-3xl p-6 md:p-8 border border-white/10">
-                <LogoLoop
-                  logos={[
-                    { node: <SiHtml5 className="text-[#E34F26]" />, title: "HTML5", href: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
-                    { node: <SiCss3 className="text-[#1572B6]" />, title: "CSS3", href: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
-                    { node: <SiJavascript className="text-[#F7DF1E]" />, title: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
-                    { node: <SiTypescript className="text-[#3178C6]" />, title: "TypeScript", href: "https://www.typescriptlang.org" },
-                    { node: <SiReact className="text-[#61DAFB]" />, title: "React", href: "https://react.dev" },
-                    { node: <SiNextdotjs className="text-white" />, title: "Next.js", href: "https://nextjs.org" },
-                    { node: <SiNodedotjs className="text-[#339933]" />, title: "Node.js", href: "https://nodejs.org" },
-                    { node: <SiExpress className="text-white" />, title: "Express.js", href: "https://expressjs.com" },
-                    { node: <SiGraphql className="text-[#E10098]" />, title: "GraphQL", href: "https://graphql.org" },
-                    { node: <SiPhp className="text-[#777BB4]" />, title: "PHP", href: "https://www.php.net" },
-                    { node: <SiPostgresql className="text-[#4169E1]" />, title: "PostgreSQL", href: "https://www.postgresql.org" },
-                    { node: <SiMongodb className="text-[#47A248]" />, title: "MongoDB", href: "https://www.mongodb.com" },
-                    { node: <SiThreedotjs className="text-white" />, title: "Three.js", href: "https://threejs.org" },
-                    { node: <SiRedux className="text-[#764ABC]" />, title: "Redux", href: "https://redux.js.org" },
-                    { node: <SiGithub className="text-white" />, title: "GitHub", href: "https://github.com" },
-                    { node: <SiVsco className="text-[#007ACC]" />, title: "VS Code", href: "https://code.visualstudio.com" },
-                    { node: <SiFigma className="text-[#F24E1E]" />, title: "Figma", href: "https://www.figma.com" },
-                    { node: <SiCplusplus className="text-[#00599C]" />, title: "C++", href: "https://isocpp.org" },
-                    { node: <FaJava className="text-[#ED8B00]" />, title: "Java", href: "https://www.java.com" },
-                    { node: <SiPython className="text-[#3776AB]" />, title: "Python", href: "https://www.python.org" },
-                    { node: <SiLinux className="text-white" />, title: "Linux", href: "https://www.linux.org" },
-                    { node: <SiTailwindcss className="text-[#06B6D4]" />, title: "Tailwind CSS", href: "https://tailwindcss.com" },
-                  ]}
-                  speed={80}
-                  direction="left"
-                  logoHeight={64}
-                  gap={48}
-                  pauseOnHover={true}
-                  hoverSpeed={20}
-                  fadeOut={true}
-                  fadeOutColor="#0a0a0a"
-                  scaleOnHover={true}
-                  ariaLabel="Technology tools and frameworks"
-                  className="w-full"
+            <div className="relative">
+              <div
+                className="pointer-events-none absolute -inset-px rounded-2xl md:rounded-3xl opacity-80 blur-xl bg-gradient-to-r from-[#3A29FF]/25 via-[#5B8DEF]/20 to-[#14B8A6]/25"
+                aria-hidden
+              />
+              <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-white/[0.12] bg-[#060010]/75 backdrop-blur-xl shadow-[0_24px_80px_-24px_rgba(0,0,0,0.65),inset_0_1px_0_0_rgba(255,255,255,0.06)]">
+                <div
+                  className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  aria-hidden
                 />
+                <div className="relative py-5 md:py-6 px-4 sm:px-6 md:px-10">
+                  <LogoLoop
+                    logos={[
+                      { node: <SiHtml5 className="text-[#E34F26]" />, title: "HTML5", href: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+                      { node: <SiCss3 className="text-[#1572B6]" />, title: "CSS3", href: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+                      { node: <SiJavascript className="text-[#F7DF1E]" />, title: "JavaScript", href: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+                      { node: <SiTypescript className="text-[#3178C6]" />, title: "TypeScript", href: "https://www.typescriptlang.org" },
+                      { node: <SiReact className="text-[#61DAFB]" />, title: "React", href: "https://react.dev" },
+                      { node: <SiNextdotjs className="text-white" />, title: "Next.js", href: "https://nextjs.org" },
+                      { node: <SiNodedotjs className="text-[#339933]" />, title: "Node.js", href: "https://nodejs.org" },
+                      { node: <SiExpress className="text-white" />, title: "Express.js", href: "https://expressjs.com" },
+                      { node: <SiGraphql className="text-[#E10098]" />, title: "GraphQL", href: "https://graphql.org" },
+                      { node: <SiPhp className="text-[#777BB4]" />, title: "PHP", href: "https://www.php.net" },
+                      { node: <SiPostgresql className="text-[#4169E1]" />, title: "PostgreSQL", href: "https://www.postgresql.org" },
+                      { node: <SiMongodb className="text-[#47A248]" />, title: "MongoDB", href: "https://www.mongodb.com" },
+                      { node: <SiThreedotjs className="text-white" />, title: "Three.js", href: "https://threejs.org" },
+                      { node: <SiRedux className="text-[#764ABC]" />, title: "Redux", href: "https://redux.js.org" },
+                      { node: <SiGithub className="text-white" />, title: "GitHub", href: "https://github.com" },
+                      { node: <SiVsco className="text-[#007ACC]" />, title: "VS Code", href: "https://code.visualstudio.com" },
+                      { node: <SiFigma className="text-[#F24E1E]" />, title: "Figma", href: "https://www.figma.com" },
+                      { node: <SiCplusplus className="text-[#00599C]" />, title: "C++", href: "https://isocpp.org" },
+                      { node: <FaJava className="text-[#ED8B00]" />, title: "Java", href: "https://www.java.com" },
+                      { node: <SiPython className="text-[#3776AB]" />, title: "Python", href: "https://www.python.org" },
+                      { node: <SiLinux className="text-white" />, title: "Linux", href: "https://www.linux.org" },
+                      { node: <SiTailwindcss className="text-[#06B6D4]" />, title: "Tailwind CSS", href: "https://tailwindcss.com" },
+                    ]}
+                    speed={64}
+                    direction="left"
+                    logoHeight={52}
+                    gap={56}
+                    pauseOnHover={true}
+                    hoverSpeed={16}
+                    fadeOut={false}
+                    scaleOnHover={true}
+                    ariaLabel="Technology tools and frameworks"
+                    className="w-full py-1"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1202,17 +1197,17 @@ export default function Home() {
                   style={{ borderRadius: 16 }}
                   className="h-full transition-transform duration-300"
                 >
-                  <div className="relative h-full p-6 md:p-8 rounded-2xl bg-gradient-to-br from-[#3A29FF]/10 via-[#FF94B4]/5 to-[#FF3232]/10 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden">
+                  <div className="relative h-full p-6 md:p-8 rounded-2xl bg-gradient-to-br from-[#3A29FF]/10 via-[#5B8DEF]/5 to-[#14B8A6]/10 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden">
                     {/* Animated gradient background overlay */}
                     <div className="absolute inset-0 opacity-30">
                       <div className="absolute top-0 left-0 w-96 h-96 bg-[#3A29FF]/20 rounded-full blur-3xl animate-pulse"></div>
-                      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#FF94B4]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-                      <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-[#FF3232]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+                      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#5B8DEF]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+                      <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-[#14B8A6]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
                     </div>
                     
                     {/* Decorative corner accents */}
                     <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-[#3A29FF]/30 to-transparent rounded-br-full"></div>
-                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#FF3232]/30 to-transparent rounded-tl-full"></div>
+                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[#14B8A6]/30 to-transparent rounded-tl-full"></div>
                     
                     <div className="relative z-10">
                       <form
@@ -1270,7 +1265,7 @@ export default function Home() {
                         {/* Email Field */}
                         <div className="group/field">
                           <label htmlFor="email" className="block text-white/90 text-sm font-semibold mb-2 flex items-center gap-2">
-                            <FaEnvelope className="text-[#FF94B4] transition-transform duration-200 group-hover/field:scale-110" />
+                            <FaEnvelope className="text-[#5B8DEF] transition-transform duration-200 group-hover/field:scale-110" />
                             Email
                           </label>
                           <div className="relative">
@@ -1281,10 +1276,10 @@ export default function Home() {
                               value={formData.email}
                               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                               required
-                              className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#FF94B4] focus:ring-2 focus:ring-[#FF94B4]/50 transition-all duration-200 backdrop-blur-sm shadow-lg focus:shadow-[#FF94B4]/20 focus:shadow-xl"
+                              className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#5B8DEF] focus:ring-2 focus:ring-[#5B8DEF]/50 transition-all duration-200 backdrop-blur-sm shadow-lg focus:shadow-[#5B8DEF]/20 focus:shadow-xl"
                               placeholder="your.email@example.com"
                             />
-                            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FF94B4]/0 via-[#FF94B4]/20 to-[#FF94B4]/0 opacity-0 group-hover/field:opacity-100 transition-opacity duration-200 -z-10 blur-xl"></div>
+                            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#5B8DEF]/0 via-[#5B8DEF]/20 to-[#5B8DEF]/0 opacity-0 group-hover/field:opacity-100 transition-opacity duration-200 -z-10 blur-xl"></div>
                           </div>
                         </div>
 
@@ -1301,10 +1296,10 @@ export default function Home() {
                               value={formData.subject}
                               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                               required
-                              className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#FF3232] focus:ring-2 focus:ring-[#FF3232]/50 transition-all duration-200 backdrop-blur-sm shadow-lg focus:shadow-[#FF3232]/20 focus:shadow-xl"
+                              className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/50 transition-all duration-200 backdrop-blur-sm shadow-lg focus:shadow-[#14B8A6]/20 focus:shadow-xl"
                               placeholder="What's this about?"
                             />
-                            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#FF3232]/0 via-[#FF3232]/20 to-[#FF3232]/0 opacity-0 group-hover/field:opacity-100 transition-opacity duration-200 -z-10 blur-xl"></div>
+                            <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#14B8A6]/0 via-[#14B8A6]/20 to-[#14B8A6]/0 opacity-0 group-hover/field:opacity-100 transition-opacity duration-200 -z-10 blur-xl"></div>
                           </div>
                         </div>
 
@@ -1333,9 +1328,9 @@ export default function Home() {
                           <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="relative w-full px-6 py-4 rounded-xl bg-gradient-to-r from-[#3A29FF] via-[#FF94B4] to-[#FF3232] text-white font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-200 shadow-2xl shadow-[#3A29FF]/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden group/btn"
+                            className="relative w-full px-6 py-4 rounded-xl bg-gradient-to-r from-[#3A29FF] via-[#5B8DEF] to-[#14B8A6] text-white font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-200 shadow-2xl shadow-[#3A29FF]/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden group/btn"
                           >
-                            <span className="absolute inset-0 bg-gradient-to-r from-[#FF94B4] via-[#FF3232] to-[#3A29FF] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></span>
+                            <span className="absolute inset-0 bg-gradient-to-r from-[#5B8DEF] via-[#14B8A6] to-[#3A29FF] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></span>
                             <span className="relative z-10 flex items-center gap-2">
                               {isSubmitting ? (
                                 <>
@@ -1391,8 +1386,8 @@ export default function Home() {
                       style={{
                         background: `
                           radial-gradient(ellipse at 30% 30%, rgba(58, 41, 255, 0.3) 0%, transparent 50%),
-                          radial-gradient(ellipse at 70% 70%, rgba(255, 148, 180, 0.2) 0%, transparent 50%),
-                          radial-gradient(ellipse at 50% 50%, rgba(255, 50, 50, 0.15) 0%, transparent 60%),
+                          radial-gradient(ellipse at 70% 70%, rgba(91, 141, 239, 0.2) 0%, transparent 50%),
+                          radial-gradient(ellipse at 50% 50%, rgba(20, 184, 166, 0.15) 0%, transparent 60%),
                           linear-gradient(135deg, #060010 0%, #1a0a2e 50%, #060010 100%)
                         `
                       }}
@@ -1452,7 +1447,7 @@ export default function Home() {
                   fontSize="clamp(0.875rem, 2vw, 1.125rem)"
                   fontWeight={500}
                   color="#FFFFFF"
-                  gradient={['#3A29FF', '#FF94B4', '#FF3232']}
+                  gradient={['#3A29FF', '#5B8DEF', '#14B8A6']}
                   fuzzRange={12}
                   direction="horizontal"
                   transitionDuration={300}
@@ -1471,7 +1466,7 @@ export default function Home() {
                   fontSize="clamp(1.25rem, 3vw, 2rem)"
                   fontWeight={800}
                   color="#FFFFFF"
-                  gradient={['#3A29FF', '#FF94B4', '#FF3232']}
+                  gradient={['#3A29FF', '#5B8DEF', '#14B8A6']}
                   fuzzRange={18}
                   direction="horizontal"
                   transitionDuration={350}
@@ -1491,7 +1486,7 @@ export default function Home() {
                 href="https://github.com/saadmdev"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-[#FF94B4] transition-colors duration-200 flex items-center gap-1.5"
+                className="hover:text-[#5B8DEF] transition-colors duration-200 flex items-center gap-1.5"
               >
                 <FaGithub className="text-sm" />
                 <span>GitHub</span>
@@ -1501,7 +1496,7 @@ export default function Home() {
                 href="https://www.linkedin.com/in/muhammad-saad-a4779b38a/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-[#FF3232] transition-colors duration-200 flex items-center gap-1.5"
+                className="hover:text-[#14B8A6] transition-colors duration-200 flex items-center gap-1.5"
               >
                 <FaLinkedin className="text-sm" />
                 <span>LinkedIn</span>
