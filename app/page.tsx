@@ -42,6 +42,7 @@ import {
 } from 'react-icons/si';
 import { FaJava, FaEnvelope, FaUser, FaPaperPlane, FaDatabase, FaLaptopCode } from 'react-icons/fa';
 import x1Image from '@/assets/x1.jpg';
+import novaWorkspace from '@/assets/novaWorkspace.png';
 import Dither from '@/components/Dither';
 import ASCIIText from '@/components/ASCIIText';
 import TextPressure from '@/components/TextPressure';
@@ -233,7 +234,7 @@ export default function Home() {
       id: 1,
       title: "BuyNex - AI Powered Ecommerce Platform",
       image: typeof ecommerce === 'string' ? ecommerce : ecommerce.src,
-      description: "BuyNex is a full-stack AI powered ecommerce platform for electronics that improves product discovery using semantic search, image-based search, and an AI shopping assistant. The system allows users to search products using natural language, upload product images for visual matching, chat with an AI assistant for recommendations, manage carts and orders, and use secure authentication. The admin side supports product, order, and user management, making it a complete ecommerce solution with modern AI features.",
+      description: "BuyNex is a full-stack AI powered ecommerce platform for electronics that improves product discovery using semantic search, image-based search and an AI shopping assistant. The system allows users to search products using natural language, upload product images for visual matching, chat with an AI assistant for recommendations, manage carts and orders and use secure authentication. The admin side supports product, order and user management, making it a complete ecommerce solution with modern AI features.",
       tools: ["Next.js", "React", "Node.js", "Express", "MongoDB Atlas", "Tailwind CSS", "Clerk", "OpenAI API", "MiniLM", "CLIP", "Vector Search", "JavaScript"],
       liveUrl: "https://www.buynex.app"
     },
@@ -256,12 +257,12 @@ export default function Home() {
     },
     {
       id: 4,
-      title: "OceanExplorer",
-      image: typeof ocean === 'string' ? ocean : ocean.src,
-      description: "A frontend project that displays the ocean's beautiful waves and different places around the world",
-      tools: ["React", "Tailwind CSS", "Vite"],
-      githubUrl: "https://github.com/saadmdev/ocean-explorer?tab=readme-ov-file",
-      liveUrl: "https://saadmdev.github.io/ocean-explorer/"
+      title: "Nova Workspace",
+      image: typeof novaWorkspace === 'string' ? novaWorkspace : novaWorkspace.src,
+      description: "An AI-powered workspace platform built for brainstorming, project planning, task management and productivity. It includes interactive Kanban boards, a slash markdown editor, command palette, workspace-aware AI assistant, focus tracking dashboard, secure authentication, file uploads and a full Express/MongoDB backend.",
+      tools: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Framer Motion", "Zustand", "Express.js", "MongoDB", "Mongoose", "JWT", "OpenAI API", "Cloudinary", "Multer", "Socket.io", "Winston", "Zod"],
+      githubUrl: "https://github.com/saadmdev/Nova-Workspace",
+      liveUrl: ""
     },
     {
       id: 5,
@@ -274,6 +275,15 @@ export default function Home() {
     },
     {
       id: 6,
+      title: "OceanExplorer",
+      image: typeof ocean === 'string' ? ocean : ocean.src,
+      description: "A frontend project that displays the ocean's beautiful waves and different places around the world",
+      tools: ["React", "Tailwind CSS", "Vite"],
+      githubUrl: "https://github.com/saadmdev/ocean-explorer?tab=readme-ov-file",
+      liveUrl: "https://saadmdev.github.io/ocean-explorer/"
+    },
+    {
+      id: 7,
       title: "Pathfinding Visualizer",
       image: typeof pathfinder === 'string' ? pathfinder : pathfinder.src,
       description: "A pathfinding visualizer that allows you to visualize the pathfinding algorithms like Dijkstra's, A*, Depth-First Search (DFS) ,and Breadth-First Search .",
