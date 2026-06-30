@@ -231,6 +231,14 @@ export default function Home() {
   const projects: Project[] = [
     {
       id: 1,
+      title: "BuyNex - AI Powered Ecommerce Platform",
+      image: typeof ecommerce === 'string' ? ecommerce : ecommerce.src,
+      description: "BuyNex is a full-stack AI powered ecommerce platform for electronics that improves product discovery using semantic search, image-based search, and an AI shopping assistant. The system allows users to search products using natural language, upload product images for visual matching, chat with an AI assistant for recommendations, manage carts and orders, and use secure authentication. The admin side supports product, order, and user management, making it a complete ecommerce solution with modern AI features.",
+      tools: ["Next.js", "React", "Node.js", "Express", "MongoDB Atlas", "Tailwind CSS", "Clerk", "OpenAI API", "MiniLM", "CLIP", "Vector Search", "JavaScript"],
+      liveUrl: "https://www.buynex.app"
+    },
+    {
+      id: 2,
       title: "X1 Chauffeurs",
       image: typeof x1Image === 'string' ? x1Image : x1Image.src,
       description: "X1 Chauffeurs is a luxury transportation platform that provides a seamless and efficient way to book and manage chauffeur services. It is built with Next.js for the frontend and NestJS for the backend.",
@@ -238,22 +246,13 @@ export default function Home() {
       liveUrl: "https://www.x1chauffeurs.com"
     },
     {
-      id: 2,
+      id: 3,
       title: "Car Rental Management System",
       image: typeof carrental === 'string' ? carrental : carrental.src,
       description: "A full stack car rental management system that allows you to manage the cars, bookings, and customers.",
       tools: ["Next.js", "Node.js", "Express", "MongoDB", "Tailwind CSS", "TypeScript"],
       githubUrl: "https://github.com/saadmdev/car-rental-management-system",
       liveUrl: "https://car-rental-management-system-indol.vercel.app/pages/home"
-    },
-    {
-      id: 3,
-      title: "Ecommerce Website",
-      image: typeof ecommerce === 'string' ? ecommerce : ecommerce.src,
-      description: "A full stack ecommerce website that allows you to manage the products, orders, and customers.",
-      tools: ["React", "Node.js", "Express", "MongoDB", "Tailwind CSS", "JavaScript"],
-      githubUrl: "https://github.com/saadmdev/fullstack-ecommerce-mern",
-      liveUrl: "https://fullstack-ecommerce-mern-beta.vercel.app"
     },
     {
       id: 4,
